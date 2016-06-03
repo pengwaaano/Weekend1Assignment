@@ -9,7 +9,7 @@ import jacobgreenland.com.registrationform.Model.Person;
  */
 public class Constants {
 
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 4;
 
     // Database Name
     public static final String DATABASE_NAME = "registrationManager";
@@ -21,6 +21,8 @@ public class Constants {
     public static final String KEY_ID = "id";
     public static final String KEY_FIRSTNAME = "first_name";
     public static final String KEY_LASTNAME = "last_name";
+    public static final String KEY_COUNTRY = "country";
+    public static final String KEY_GENDER = "gender";
     //private static final String KEY_EMAIL = "email";
     public final ArrayList<Person> people_list = new ArrayList<Person>();
 

@@ -116,7 +116,8 @@
         android:orientation="horizontal"
         android:layout_alignParentRight="true"
         android:layout_marginTop="@dimen/_20sdp"
-        android:layout_alignParentEnd="true">
+        android:layout_alignParentEnd="true"
+        android:id="@+id/et_radioGroup">
 
         <RadioButton
             android:layout_width="wrap_content"

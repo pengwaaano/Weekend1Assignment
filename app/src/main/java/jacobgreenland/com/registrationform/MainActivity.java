@@ -11,6 +11,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,11 +38,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     private BottomSheetBehavior mBottomSheetBehavior;
     Button mOkButton;
     Button mConfirmButton;
-
+    RadioButton mMale, mFemale, mOther;
+    RadioGroup group;
     DatabaseHandler dbHandler = new DatabaseHandler(this);
 
-    private String valid_firstName = null;
-    private String valid_lastName = null;
+    private String valid_firstName = null, valid_lastName = null, valid_country = null, valid_gender = null;
     String Toast_msg = null;
     //Date mDateOfBirth;
     @Override
@@ -60,8 +62,14 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         mDateOfBirth = (TextView) findViewById(R.id.et_DateOfBirth);
         Button button = (Button) findViewById(R.id.et_datePicker);
 
+        mMale = (RadioButton) findViewById(R.id.et_maleRadio);
+        mFemale = (RadioButton) findViewById(R.id.et_femaleRadio);
+        mOther = (RadioButton) findViewById(R.id.et_otherRadio);
+        group = (RadioGroup) findViewById(R.id.et_radioGroup);
+
         mOkButton = (Button) findViewById(R.id.et_okButton);
         mDateOfBirth.setText(R.string.dob);
+
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -103,9 +111,16 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
 			&& valid_email.length() != 0)*/
                 valid_firstName = mFirstName.getText().toString();
                 valid_lastName = mLastName.getText().toString();
+                valid_country = mCountrySpinner.getSelectedItem().toString();
+                    if (mMale.isChecked())
+                        valid_gender = "Male";
+                    else if (mFemale.isChecked())
+                        valid_gender = "Female";
+                    else if (mOther.isChecked())
+                        valid_gender = "Other";
                 //valid_email = add_email.getText().toString();
                 dbHandler.Add_Contact(new Person(valid_firstName,
-                        valid_lastName));
+                        valid_lastName, valid_country, valid_gender));
                 Toast_msg = "Data inserted successfully";
                 Show_Toast(Toast_msg);
                 Reset_Text();
