@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">RegistrationForm</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+
+    <string name="date_picker_set">Set Date</string>
+    <string name="date_picker_result_value">Year: %1$s\nMonth: %2$s\nDay: %3$s</string>
+    <string name="no_value">--</string>
+    <string name="dob">Date Of Birth</string>
+    <string-array name="countries">
+        <item>England</item>
+        <item>France</item>
+        <item>Spain</item>
+        <item>Italy</item>
+        <item>Russia</item>
+        <item>Australia</item>
+        <item>India</item>
+        <item>China</item>
+    </string-array>
+</resources>
