@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -36,13 +37,13 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     private Bitmap bitmap;
     Spinner mCountrySpinner;
     private BottomSheetBehavior mBottomSheetBehavior;
-    Button mOkButton;
+    Button mOkButton, mViewAllButton;
     Button mConfirmButton;
     RadioButton mMale, mFemale, mOther;
     RadioGroup group;
     DatabaseHandler dbHandler = new DatabaseHandler(this);
 
-    private String valid_firstName = null, valid_lastName = null, valid_country = null, valid_gender = null;
+    private String valid_firstName = null, valid_lastName = null, valid_country = null, valid_gender = null, valid_dob = null, valid_photo = null;
     String Toast_msg = null;
     //Date mDateOfBirth;
     @Override
@@ -68,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         group = (RadioGroup) findViewById(R.id.et_radioGroup);
 
         mOkButton = (Button) findViewById(R.id.et_okButton);
+        mViewAllButton = (Button) findViewById(R.id.et_viewAll);
         mDateOfBirth.setText(R.string.dob);
 
         button.setOnClickListener(new View.OnClickListener() {
@@ -120,9 +122,14 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                         valid_gender = "Other";
                 //valid_email = add_email.getText().toString();
                 dbHandler.Add_Contact(new Person(valid_firstName,
-                        valid_lastName, valid_country, valid_gender));
+                        valid_lastName, valid_country, valid_gender, valid_dob, valid_photo));
                 Toast_msg = "Data inserted successfully";
                 Show_Toast(Toast_msg);
+
+                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                mOkButton.setVisibility(View.VISIBLE);
+                mViewAllButton.setVisibility(View.VISIBLE);
+
                 Reset_Text();
 
 
@@ -137,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
                 mOkButton.setVisibility(View.INVISIBLE);
+                mViewAllButton.setVisibility(View.INVISIBLE);
                 break;
             }
         }
@@ -146,6 +154,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
             case R.id.et_cancelButton: {
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 mOkButton.setVisibility(View.VISIBLE);
+                mViewAllButton.setVisibility(View.VISIBLE);
                 break;
             }
         }
@@ -153,7 +162,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
 
     @Override
     public void onDialogDateSet(int reference, int year, int monthOfYear, int dayOfMonth) {
-        mDateOfBirth.setText(dayOfMonth + "/" + (monthOfYear+1) + "/" + year);//getString(R.string.date_picker_result_value, year, monthOfYear+1, dayOfMonth));
+        mDateOfBirth.setText(dayOfMonth + "/" + (monthOfYear+1) + "/" + year);
+        valid_dob = dayOfMonth + "/" + (monthOfYear+1) + "/" + year;
+        //getString(R.string.date_picker_result_value, year, monthOfYear+1, dayOfMonth));
     }
     public void onImageClick(View v)
     {
@@ -173,10 +184,12 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                 if (bitmap != null) {
                     bitmap.recycle();
                 }
+                Log.d("Activity", data.getData().toString());
                 stream = getContentResolver().openInputStream(data.getData());
                 bitmap = BitmapFactory.decodeStream(stream);
 
                 mProfilePhoto.setImageBitmap(bitmap);
+                valid_photo = data.getDataString();//getImageUri(getApplicationContext(),bitmap);
 
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -189,6 +202,13 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                     }
             }
     }
+
+    public void ViewAll(View v)
+    {
+        Intent intent = new Intent(this,listActivity.class);
+        startActivity(intent);
+    }
+
     public void Show_Toast(String msg) {
         Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
     }
