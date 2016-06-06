@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        // call initialise UI elements
         initialiseUI();
 
     }
@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
 
     public void initialiseUI()
     {
+        //Initialise UI elements
         mFirstName = (TextView) findViewById(R.id.et_firstName);
         mLastName = (TextView) findViewById(R.id.et_lastName);
         mProfilePhoto = (ImageView) findViewById(R.id.et_profilePicture);
@@ -82,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         mOkButton = (Button) findViewById(R.id.et_okButton);
         mViewAllButton = (Button) findViewById(R.id.et_viewAll);
         mDateOfBirth.setText(R.string.dob);
-
+        //set date picker onclick
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -94,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         });
 
         mCountrySpinner = (Spinner) findViewById(R.id.et_countrySpinner);
-
+        //set spinner onclick
         mCountrySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
             public void onItemSelected(AdapterView<?> av, View v,
@@ -112,18 +113,20 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
         mConfirmButton = (Button) findViewById(R.id.et_confirmButton);
 
+        //refresh data if it's being edited rather than added
         RefreshData();
     }
 
     public void RefreshData()
     {
         String called_from = getIntent().getStringExtra("Update");
+        //check if edit
         if(called_from.equalsIgnoreCase("edit"))
         {
             int editID = getIntent().getIntExtra("ID",0);
 
             Person editPerson = dbHandler.Get_Person(editID);
-
+            // load data for the details being edited
             mFirstName.setText(editPerson.getFirstName());
             mLastName.setText(editPerson.getLastName());
             mDateOfBirth.setText(editPerson.getDateOfBirth());
@@ -162,16 +165,14 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
             //mCountrySpinner.getAdapter().getI
             //mCountrySpinner.set
         }
+        //set confirm button onClick
         mConfirmButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                // check the value state is null or not
-		/*if (valid_name != null && valid_mob_number != null
-			&& valid_email != null && valid_name.length() != 0
-			&& valid_mob_number.length() != 0
-			&& valid_email.length() != 0)*/
+
+                //save data
                 valid_firstName = mFirstName.getText().toString();
                 valid_lastName = mLastName.getText().toString();
                 valid_country = mCountrySpinner.getSelectedItem().toString();
@@ -211,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
             }
         });
     }
-
+    //show bottom sheet
     public void bottomSheetGo(View v) {
         switch( v.getId() ) {
             case R.id.et_okButton: {
@@ -225,10 +226,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                     valid_gender = "Other";
                 else
                     valid_gender = "";
-
+                //check all data has been entered
                 if(mFirstName.getText() == null || mLastName.getText() == null || mCountrySpinner.getSelectedItem() == null || mDateOfBirth.getText() == "Date Of Birth"
                         || valid_gender == "")
                 {
+
                     Log.d("TEST", mFirstName.getText().toString());
                     Log.d("TEST", mLastName.getText().toString());
                     Log.d("TEST", mCountrySpinner.getSelectedItem().toString());
@@ -246,6 +248,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
             }
         }
     }
+    //hide Bottom sheet
     public void bottomSheetGone(View v) {
         switch( v.getId() ) {
             case R.id.et_cancelButton: {
@@ -306,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                     }
             }
     }
-
+    //convert bitmap to byte array
     public byte[] getBytesFromBitmap(Bitmap bitmap) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);

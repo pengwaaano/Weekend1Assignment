@@ -2,7 +2,6 @@ package jacobgreenland.com.registrationform;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -36,7 +35,6 @@ public class listActivity extends AppCompatActivity {
     DatabaseHandler db;
     ArrayAdapter adapter;
     ListView list;
-    ContentResolver c = null;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -47,8 +45,6 @@ public class listActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
-
-        c = getApplicationContext().getContentResolver();
 
         list = (ListView) findViewById(R.id.lv_List);
 
@@ -65,7 +61,7 @@ public class listActivity extends AppCompatActivity {
         Set_Refresh_Data();
 
     }
-
+    // refresh data
     public void Set_Refresh_Data() {
         person_data.clear();
         db = new DatabaseHandler(this);
@@ -168,7 +164,7 @@ public class listActivity extends AppCompatActivity {
             View row = convertView;
             PersonHolder holder = null;
             ListView list = (ListView) findViewById(R.id.lv_List);
-
+            //set onClick for edit
             list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
                 @Override
@@ -184,7 +180,7 @@ public class listActivity extends AppCompatActivity {
                     finish();
                 }
             });
-
+            //set long click for delete
             list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> adapter2, View item, int pos, long id) {
