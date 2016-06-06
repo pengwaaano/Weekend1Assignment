@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
             //mMale.setChecked(true);
             if (editPerson.getGender().equalsIgnoreCase("male"))
             {
-                mMale.setSelected(true);
+                mMale.setChecked(true);
                 //mFemale.setChecked(false);
                 //mOther.setChecked(false);
             }
