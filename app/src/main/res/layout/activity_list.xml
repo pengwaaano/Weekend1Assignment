@@ -23,7 +23,6 @@
         android:layout_height="wrap_content"
         android:text="Add User"
         android:id="@+id/lv_AddUser"
-        android:onClick="addUser"
         android:layout_alignParentTop="true"
         android:layout_alignRight="@+id/lv_List"
         android:layout_alignEnd="@+id/lv_List"
