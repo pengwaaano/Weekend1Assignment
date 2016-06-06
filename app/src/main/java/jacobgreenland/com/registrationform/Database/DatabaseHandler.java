@@ -48,7 +48,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
 
     // Adding new contact
-    public void Add_Contact(Person person) {
+    public void Add_Person(Person person) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(Constants.KEY_FIRSTNAME, person.getFirstName()); // Person First Name
@@ -65,7 +65,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     // Getting single contact
-    Person Get_Person(int id) {
+    public Person Get_Person(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(Constants.TABLE_PEOPLE, new String[] { Constants.KEY_ID,
@@ -83,7 +83,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return person;
     }
 
-    public ArrayList<Person> Get_Contacts()
+    public ArrayList<Person> Get_People()
     {
         try {
             person_list.clear();
@@ -121,7 +121,23 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return person_list;
     }
 
-    public void Delete_Contact(int id) {
+    public int Update_Person(Person person) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(Constants.KEY_FIRSTNAME, person.getFirstName());
+        values.put(Constants.KEY_LASTNAME, person.getLastName());
+        values.put(Constants.KEY_COUNTRY, person.getCountry());
+        values.put(Constants.KEY_DATEOFBIRTH, person.getDateOfBirth());
+        values.put(Constants.KEY_GENDER, person.getGender());
+        values.put(Constants.KEY_PHOTO, person.getPhoto());
+
+        // updating row
+        return db.update(Constants.TABLE_PEOPLE, values, Constants.KEY_ID + " = ?",
+                new String[] { String.valueOf(person.getID()) });
+    }
+
+    public void Delete_Person(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(Constants.TABLE_PEOPLE, Constants.KEY_ID + " = ?",
                 new String[] { String.valueOf(id) });

@@ -9,7 +9,7 @@ import jacobgreenland.com.registrationform.Model.Person;
  */
 public class Constants {
 
-    public static final int DATABASE_VERSION = 10;
+    public static final int DATABASE_VERSION = 22;
 
     // Database Name
     public static final String DATABASE_NAME = "registrationManager";

@@ -7,9 +7,11 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RadioButton;
@@ -21,6 +23,7 @@ import android.widget.Toast;
 import com.codetroopers.betterpickers.datepicker.DatePickerBuilder;
 import com.codetroopers.betterpickers.datepicker.DatePickerDialogFragment;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +32,7 @@ import jacobgreenland.com.registrationform.Database.DatabaseHandler;
 import jacobgreenland.com.registrationform.Model.Person;
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialogFragment.DatePickerDialogHandler{
+
     private static final int REQUEST_CODE = 1;
     TextView mFirstName;
     TextView mLastName;
@@ -54,6 +58,13 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         initialiseUI();
 
     }
+    @Override
+    public void onResume() {
+        // TODO Auto-generated method stub
+        super.onResume();
+        RefreshData();
+    }
+
     public void initialiseUI()
     {
         mFirstName = (TextView) findViewById(R.id.et_firstName);
@@ -101,6 +112,56 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
         mConfirmButton = (Button) findViewById(R.id.et_confirmButton);
 
+        RefreshData();
+    }
+
+    public void RefreshData()
+    {
+        String called_from = getIntent().getStringExtra("Update");
+        if(called_from.equalsIgnoreCase("edit"))
+        {
+            int editID = getIntent().getIntExtra("ID",0);
+
+            Person editPerson = dbHandler.Get_Person(editID);
+
+            mFirstName.setText(editPerson.getFirstName());
+            mLastName.setText(editPerson.getLastName());
+            mDateOfBirth.setText(editPerson.getDateOfBirth());
+            valid_photo = editPerson.getPhoto();
+            //if(editPerson.getPhoto().contains("content:"))
+            if (editPerson.getPhoto() != "")
+            {
+                byte[] decodedString = Base64.decode(editPerson.getPhoto(), Base64.DEFAULT);
+                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                mProfilePhoto.setImageBitmap(decodedByte);
+            }
+            //mProfilePhoto.setImageURI(Uri.parse(editPerson.getPhoto()));
+
+            Log.d("Gender Test", editPerson.getGender().toString());
+            //mMale.setChecked(true);
+            if (editPerson.getGender().equalsIgnoreCase("male"))
+            {
+                mMale.setSelected(true);
+                //mFemale.setChecked(false);
+                //mOther.setChecked(false);
+            }
+            else if (editPerson.getGender().equalsIgnoreCase("female"))
+            {
+                //mMale.setChecked(false);
+                mFemale.setChecked(true);
+                //mOther.setChecked(false);
+            }
+            else if (editPerson.getGender().equalsIgnoreCase("other"))
+            {
+                //mMale.setChecked(false);
+                //mFemale.setChecked(false);
+                mOther.setChecked(true);
+            }
+
+            mCountrySpinner.setSelection(((ArrayAdapter<String>)mCountrySpinner.getAdapter()).getPosition(editPerson.getCountry()));
+            //mCountrySpinner.getAdapter().getI
+            //mCountrySpinner.set
+        }
         mConfirmButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -114,24 +175,37 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                 valid_firstName = mFirstName.getText().toString();
                 valid_lastName = mLastName.getText().toString();
                 valid_country = mCountrySpinner.getSelectedItem().toString();
-                    if (mMale.isChecked())
-                        valid_gender = "Male";
-                    else if (mFemale.isChecked())
-                        valid_gender = "Female";
-                    else if (mOther.isChecked())
-                        valid_gender = "Other";
+                valid_dob = mDateOfBirth.getText().toString();
+                //valid_photo = (String) mProfilePhoto.getTag();
+                if (mMale.isChecked())
+                    valid_gender = "Male";
+                else if (mFemale.isChecked())
+                    valid_gender = "Female";
+                else if (mOther.isChecked())
+                    valid_gender = "Other";
+
                 //valid_email = add_email.getText().toString();
-                dbHandler.Add_Contact(new Person(valid_firstName,
-                        valid_lastName, valid_country, valid_gender, valid_dob, valid_photo));
-                Toast_msg = "Data inserted successfully";
-                Show_Toast(Toast_msg);
+                if(getIntent().getStringExtra("Update").equalsIgnoreCase("edit")) {
+                    dbHandler.Update_Person(new Person(getIntent().getIntExtra("ID",0),valid_firstName,
+                            valid_lastName, valid_country, valid_gender, valid_dob, valid_photo));
+                    dbHandler.close();
+                    Toast_msg = "Data updated successfully";
+                    Show_Toast(Toast_msg);
+                }
+                else
+                {
+                    Log.d("TEST", "Person Added");
+                    dbHandler.Add_Person(new Person(valid_firstName,
+                            valid_lastName, valid_country, valid_gender, valid_dob, valid_photo));
+                    Toast_msg = "Data inserted successfully";
+                    Show_Toast(Toast_msg);
+                }
 
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 mOkButton.setVisibility(View.VISIBLE);
                 mViewAllButton.setVisibility(View.VISIBLE);
 
                 Reset_Text();
-
 
 
             }
@@ -143,6 +217,29 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
             case R.id.et_okButton: {
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
+                if (mMale.isChecked())
+                    valid_gender = "Male";
+                else if (mFemale.isChecked())
+                    valid_gender = "Female";
+                else if (mOther.isChecked())
+                    valid_gender = "Other";
+                else
+                    valid_gender = "";
+
+                if(mFirstName.getText() == null || mLastName.getText() == null || mCountrySpinner.getSelectedItem() == null || mDateOfBirth.getText() == "Date Of Birth"
+                        || valid_gender == "")
+                {
+                    Log.d("TEST", mFirstName.getText().toString());
+                    Log.d("TEST", mLastName.getText().toString());
+                    Log.d("TEST", mCountrySpinner.getSelectedItem().toString());
+                    Log.d("TEST", mDateOfBirth.getText().toString());
+                    Log.d("TEST", valid_gender.toString());
+                    //Log.d("TEST", mProfilePhoto.getTag().toString());
+                    mConfirmButton.setEnabled(false);
+                }
+                else
+                    mConfirmButton.setEnabled(true);
+
                 mOkButton.setVisibility(View.INVISIBLE);
                 mViewAllButton.setVisibility(View.INVISIBLE);
                 break;
@@ -153,6 +250,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         switch( v.getId() ) {
             case R.id.et_cancelButton: {
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
                 mOkButton.setVisibility(View.VISIBLE);
                 mViewAllButton.setVisibility(View.VISIBLE);
                 break;
@@ -186,10 +284,16 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                 }
                 Log.d("Activity", data.getData().toString());
                 stream = getContentResolver().openInputStream(data.getData());
+                //Log.d("Test", stream.toString() + " 1");
                 bitmap = BitmapFactory.decodeStream(stream);
 
                 mProfilePhoto.setImageBitmap(bitmap);
-                valid_photo = data.getDataString();//getImageUri(getApplicationContext(),bitmap);
+
+// get the base 64 string
+                String imgString = Base64.encodeToString(getBytesFromBitmap(bitmap),
+                        Base64.NO_WRAP);
+
+                valid_photo = imgString;//getImageUri(getApplicationContext(),bitmap);
 
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -201,6 +305,12 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                         e.printStackTrace();
                     }
             }
+    }
+
+    public byte[] getBytesFromBitmap(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
+        return stream.toByteArray();
     }
 
     public void ViewAll(View v)

@@ -2,11 +2,15 @@ package jacobgreenland.com.registrationform;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +20,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.util.ArrayList;
 
@@ -28,14 +36,26 @@ public class listActivity extends AppCompatActivity {
     DatabaseHandler db;
     ArrayAdapter adapter;
     ListView list;
+    ContentResolver c = null;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
 
+        c = getApplicationContext().getContentResolver();
+
         list = (ListView) findViewById(R.id.lv_List);
 
         Set_Refresh_Data();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     @Override
@@ -49,7 +69,7 @@ public class listActivity extends AppCompatActivity {
     public void Set_Refresh_Data() {
         person_data.clear();
         db = new DatabaseHandler(this);
-        ArrayList<Person> contact_array_from_db = db.Get_Contacts();
+        ArrayList<Person> contact_array_from_db = db.Get_People();
 
         for (int i = 0; i < contact_array_from_db.size(); i++) {
 
@@ -79,10 +99,53 @@ public class listActivity extends AppCompatActivity {
 
         adapter.notifyDataSetChanged();
     }
-    public void addUser(View v)
-    {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+
+    public void addUser(View v) {
+        Intent add_user = new Intent(this, MainActivity.class);
+        add_user.putExtra("Update", "add");
+        add_user.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(add_user);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "list Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app URL is correct.
+                Uri.parse("android-app://jacobgreenland.com.registrationform/http/host/path")
+        );
+        AppIndex.AppIndexApi.start(client, viewAction);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "list Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app URL is correct.
+                Uri.parse("android-app://jacobgreenland.com.registrationform/http/host/path")
+        );
+        AppIndex.AppIndexApi.end(client, viewAction);
+        client.disconnect();
     }
 
     public class Person_Adapter extends ArrayAdapter<Person> {
@@ -99,16 +162,32 @@ public class listActivity extends AppCompatActivity {
             this.data = data;
             notifyDataSetChanged();
         }
+
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View row = convertView;
             PersonHolder holder = null;
             ListView list = (ListView) findViewById(R.id.lv_List);
 
+            list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                @Override
+                public void onItemClick(AdapterView<?> adapter2, View item, int pos, long id) {
+                    // TODO Auto-generated method stub
+                    Intent edit_user = new Intent(listActivity.this,
+                            MainActivity.class);
+                    edit_user.putExtra("Update", "edit");
+                    edit_user.putExtra("ID", data.get(pos).getID());
+                    edit_user.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(edit_user);
+                    finish();
+                }
+            });
+
             list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
-                public boolean onItemLongClick(AdapterView<?> adapter2, View item, int pos, long id)
-                {
+                public boolean onItemLongClick(AdapterView<?> adapter2, View item, int pos, long id) {
                     AlertDialog.Builder adb = new AlertDialog.Builder(activity);
                     adb.setTitle("Delete?");
                     adb.setMessage("Are you sure you want to delete ");
@@ -122,7 +201,7 @@ public class listActivity extends AppCompatActivity {
                                     // MyDataObject.remove(positionToRemove);
                                     DatabaseHandler dBHandler = new DatabaseHandler(
                                             activity.getApplicationContext());
-                                    dBHandler.Delete_Contact(data.get(person_id).getID());
+                                    dBHandler.Delete_Person(data.get(person_id).getID());
                                     person_data.remove(person_id);
                                     listActivity.this.onResume();
                                     adapter.notifyDataSetChanged();
@@ -160,12 +239,22 @@ public class listActivity extends AppCompatActivity {
             holder.country.setText(person.getCountry());
             holder.gender.setText(person.getGender());
 
-            if (person.getPhoto() != "") {
-                Uri photoLocation;
-                photoLocation = Uri.parse(person.getPhoto());
-                holder.photo.setImageURI(photoLocation);
-            }
+            if (person.getPhoto() != null) {
+                //Uri photoLocation;
+                //photoLocation = Uri.parse(person.getPhoto());
+                //holder.photo.setImageURI(photoLocation);
 
+                byte[] decodedString = Base64.decode(person.getPhoto(), Base64.DEFAULT);
+                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                holder.photo.setImageBitmap(decodedByte);
+
+                //InputStream input = getContentResolver().openInputStream(Uri.parse(person.getPhoto());
+                //FileInputStream fis = new FileInputStream(person.getPhoto());
+
+                //Bitmap b = BitmapFactory.decodeStream(c.openInputStream(photoLocation));
+                //Log.d("Test", input.toString() + " 1");
+                //holder.photo.setImageBitmap(b);
+            }
             notifyDataSetChanged();
             //INSERT PHOTO CODE
 

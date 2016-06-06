@@ -126,7 +126,8 @@
             android:text="Male"
             android:id="@+id/et_maleRadio"
             android:layout_marginRight="@dimen/_20sdp"
-            android:checked="false" />
+            android:checked="false"
+            android:enabled="true" />
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
