@@ -56,7 +56,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         setContentView(R.layout.activity_main);
         // call initialise UI elements
         initialiseUI();
-
     }
     @Override
     public void onResume() {
