@@ -236,70 +236,13 @@ public class listActivity extends AppCompatActivity {
             holder.gender.setText(person.getGender());
 
             if (person.getPhoto() != null) {
-                //Uri photoLocation;
-                //photoLocation = Uri.parse(person.getPhoto());
-                //holder.photo.setImageURI(photoLocation);
-
                 byte[] decodedString = Base64.decode(person.getPhoto(), Base64.DEFAULT);
                 Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                 holder.photo.setImageBitmap(decodedByte);
 
-                //InputStream input = getContentResolver().openInputStream(Uri.parse(person.getPhoto());
-                //FileInputStream fis = new FileInputStream(person.getPhoto());
-
-                //Bitmap b = BitmapFactory.decodeStream(c.openInputStream(photoLocation));
-                //Log.d("Test", input.toString() + " 1");
-                //holder.photo.setImageBitmap(b);
             }
             notifyDataSetChanged();
-            //INSERT PHOTO CODE
 
-        /*holder.edit.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
-                Log.i("Edit Button Clicked", "**********");
-
-                Intent update_user = new Intent(activity,
-                        Add_Update_User.class);
-                update_user.putExtra("called", "update");
-                update_user.putExtra("USER_ID", v.getTag().toString());
-                activity.startActivity(update_user);
-
-            }
-        });*/
-
-        /*holder.delete.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(final View v) {
-                // TODO Auto-generated method stub
-
-                // show a message while loader is loading
-
-                AlertDialog.Builder adb = new AlertDialog.Builder(activity);
-                adb.setTitle("Delete?");
-                adb.setMessage("Are you sure you want to delete ");
-                final int user_id = Integer.parseInt(v.getTag().toString());
-                adb.setNegativeButton("Cancel", null);
-                adb.setPositiveButton("Ok",
-                        new AlertDialog.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog,
-                                                int which) {
-                                // MyDataObject.remove(positionToRemove);
-                                DatabaseHandler dBHandler = new DatabaseHandler(
-                                        activity.getApplicationContext());
-                                dBHandler.Delete_Contact(user_id);
-                                Main_Screen.this.onResume();
-
-                            }
-                        });
-                adb.show();
-            }
-
-        });*/
             return row;
 
         }
