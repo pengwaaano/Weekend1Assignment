@@ -161,6 +161,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         mOkButton = ok;
         mViewAllButton = va;
         mConfirmButton = c;
+
+        RefreshData();
     }
     public void initialiseUI()
     {
@@ -502,8 +504,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                     change = "edit";
                     selectedEdit = pos + 1;
 
-
-                    RefreshData();
                     /*Intent edit_user = new Intent(MainActivity.this,
                             MainActivity.class);
                     edit_user.putExtra("Update", "edit");
