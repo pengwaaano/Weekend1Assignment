@@ -1,9 +1,13 @@
 package jacobgreenland.com.registrationform.Model;
 
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
 /**
  * Created by Jacob on 03/06/16.
  */
-public class Person {
+public class Person extends RealmObject {
+    @PrimaryKey
     int _id;
     String _firstName;
     String _lastName;

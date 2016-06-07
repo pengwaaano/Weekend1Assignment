@@ -46,7 +46,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-
     // Adding new contact
     public void Add_Person(Person person) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -136,11 +135,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 new String[] { String.valueOf(person.getID()) });
     }
 
-    public void Delete_Person(int id) {
+    public void Delete_Person(int id)
+    {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(Constants.TABLE_PEOPLE, Constants.KEY_ID + " = ?",
                 new String[] { String.valueOf(id) });
         db.close();
     }
-
 }

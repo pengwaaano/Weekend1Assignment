@@ -11,12 +11,14 @@
     tools:context="jacobgreenland.com.registrationform.MainActivity">
 
 <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="@dimen/_60sdp"
-    android:id="@+id/namePhoto">
+    android:layout_width="@dimen/_140sdp"
+    android:layout_height="wrap_content"
+    android:id="@+id/namePhoto"
+    android:orientation="vertical">
+
     <android.support.design.widget.TextInputLayout
         android:id="@+id/floatingLabel_FirstName"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/_140sdp"
         android:layout_height="match_parent"
         android:layout_weight="50"
         android:layout_alignParentTop="true"
@@ -31,48 +33,38 @@
             android:hint="@string/first_name" />
 
     </android.support.design.widget.TextInputLayout>
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/floatingLabel_LastName"
+        android:layout_width="@dimen/_140sdp"
+        android:layout_height="wrap_content">
 
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/et_lastName"
+            android:textSize="20sp"
+            android:hint="@string/last_name" />
+
+    </android.support.design.widget.TextInputLayout>
+</LinearLayout>
     <ImageView
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="@dimen/_100sdp"
         android:layout_weight="50"
         android:id="@+id/et_profilePicture"
-        android:src="@android:drawable/ic_dialog_info"
+        android:src="@drawable/ic_face"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:onClick="onImageClick"
-        android:layout_toEndOf="@id/floatingLabel_FirstName" />
-
-</LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/namePhoto"
-        android:id="@+id/layout_lastName">
-
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/floatingLabel_LastName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/et_lastName"
-                android:textSize="20sp"
-                android:hint="@string/last_name" />
-
-        </android.support.design.widget.TextInputLayout>
-    </LinearLayout>
-
-
+        android:layout_toEndOf="@+id/namePhoto"
+        android:layout_toRightOf="@+id/namePhoto" />
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/layoutDOB"
-    android:layout_below="@id/layout_lastName">
+    android:layout_below="@id/namePhoto">
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

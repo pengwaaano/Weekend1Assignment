@@ -42,7 +42,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import jacobgreenland.com.registrationform.Database.DatabaseHandler;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+import io.realm.RealmQuery;
+import io.realm.RealmResults;
 import jacobgreenland.com.registrationform.Model.Person;
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialogFragment.DatePickerDialogHandler, Communicator{
@@ -60,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     Button mOkButton, mViewAllButton;
     Button mConfirmButton;
     RadioButton mMale, mFemale, mOther;
-    DatabaseHandler dbHandler = new DatabaseHandler(this);
+    //DatabaseHandler dbHandler = new DatabaseHandler(this);
 
     private String valid_firstName = null, valid_lastName = null, valid_country = null, valid_gender = null, valid_dob = null, valid_photo = null;
     String Toast_msg = null;
@@ -71,11 +74,15 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     int selectedEdit = 0;
 
     ArrayList<Person> person_data = new ArrayList<Person>();
-    DatabaseHandler db;
+    //DatabaseHandler db;
     ArrayAdapter adapter;
 
     ListView listV;
 
+    RealmConfiguration realmConfig;
+    Realm realm;
+
+    public static int maxID = 0;
     //Date mDateOfBirth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +90,14 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         setContentView(R.layout.main);
 
         actionBar = getActionBar();
+
+        // Create a RealmConfiguration that saves the Realm file in the app's "files" directory.
+        realmConfig = new RealmConfiguration.Builder(getApplicationContext()).build();
+        Realm.setDefaultConfiguration(realmConfig);
+
+// Get a Realm instance for this thread
+        realm = Realm.getDefaultInstance();
+
         // Hide the action bar title
         //actionBar.setDisplayShowTitleEnabled(false);
         FragmentManager fragmentManager = getFragmentManager();
@@ -154,17 +169,36 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
 
         //valid_email = add_email.getText().toString();
         if (change.equalsIgnoreCase("edit")) {
-            dbHandler.Update_Person(new Person(selectedEdit, valid_firstName,
-                    valid_lastName, valid_country, valid_gender, valid_dob, valid_photo));
-            dbHandler.close();
+
+            Person person = new Person();
+            person.setID(selectedEdit);
+
+            person.setFirstName(valid_firstName);
+            person.setLastName(valid_lastName);
+            person.setDateOfBirth(valid_dob);
+            person.setCountry(valid_country);
+            person.setGender(valid_gender);
+            person.setPhoto(valid_photo);
+
+            realm.beginTransaction();
+            realm.copyToRealmOrUpdate(person);
+            realm.commitTransaction();
+
             Toast_msg = "Data updated successfully";
             Show_Toast(Toast_msg);
         } else {
-            Log.d("TEST", "Person Added");
-            dbHandler.Add_Person(new Person(valid_firstName,
-                    valid_lastName, valid_country, valid_gender, valid_dob, valid_photo));
-            Toast_msg = "Data inserted successfully";
-            Show_Toast(Toast_msg);
+            realm.beginTransaction();
+            Person person = realm.createObject(Person.class);
+            person.setID(realm.where(Person.class).max("_id").intValue()+1);
+
+            person.setFirstName(valid_firstName);
+            person.setLastName(valid_lastName);
+            person.setDateOfBirth(valid_dob);
+            person.setCountry(valid_country);
+            person.setGender(valid_gender);
+            person.setPhoto(valid_photo);
+            realm.commitTransaction();
+
         }
         change = "add";
         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -253,7 +287,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
             {
                 //int editID = getIntent().getIntExtra("ID", 0);
 
-                Person editPerson = dbHandler.Get_Person(selectedEdit);
+                RealmQuery query = realm.where(Person.class);
+                    query.equalTo("_id", selectedEdit);
+                RealmResults<Person> result1 = query.findAll();
+
+                Person editPerson = result1.first();
                 // load data for the details being edited
                 mFirstName.setText(editPerson.getFirstName());
                 mLastName.setText(editPerson.getLastName());
@@ -313,19 +351,41 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                         valid_gender = "Other";
 
                     //valid_email = add_email.getText().toString();
-                        if (change.equalsIgnoreCase("edit")) {
-                            dbHandler.Update_Person(new Person(selectedEdit, valid_firstName,
-                                    valid_lastName, valid_country, valid_gender, valid_dob, valid_photo));
-                            dbHandler.close();
+                    confirm();
+                        /*if (change.equalsIgnoreCase("edit")) {
+
+                            Person person = new Person();
+
+                            person.setID(selectedEdit+1);
+
+                            person.setFirstName(valid_firstName);
+                            person.setLastName(valid_lastName);
+                            person.setDateOfBirth(valid_dob);
+                            person.setCountry(valid_country);
+                            person.setGender(valid_gender);
+                            person.setPhoto(valid_photo);
+
+                            realm.beginTransaction();
+                            realm.copyToRealmOrUpdate(person);
+                            realm.commitTransaction();
+
                             Toast_msg = "Data updated successfully";
                             Show_Toast(Toast_msg);
                         } else {
-                            Log.d("TEST", "Person Added");
-                            dbHandler.Add_Person(new Person(valid_firstName,
-                                    valid_lastName, valid_country, valid_gender, valid_dob, valid_photo));
-                            Toast_msg = "Data inserted successfully";
-                            Show_Toast(Toast_msg);
-                        }
+                            realm.beginTransaction();
+                            Person person = realm.createObject(Person.class);
+                            //maxID++;
+                            person.setID(realm.where(Person.class).max("_id").intValue()+1);
+
+                            person.setFirstName(valid_firstName);
+                            person.setLastName(valid_lastName);
+                            person.setDateOfBirth(valid_dob);
+                            person.setCountry(valid_country);
+                            person.setGender(valid_gender);
+                            person.setPhoto(valid_photo);
+                            realm.commitTransaction();
+
+                        }*/
                     change = "add";
                     mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                     mOkButton.setVisibility(View.VISIBLE);
@@ -455,7 +515,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         mFirstName.setText("");
         mLastName.setText("");
         mDateOfBirth.setText("Date Of Birth");
-        mProfilePhoto.setImageResource(android.R.drawable.ic_dialog_info);
+        mProfilePhoto.setImageResource(R.drawable.ic_face);
+
         mMale.setChecked(false);
         mFemale.setChecked(false);
         mOther.setChecked(false);
@@ -463,18 +524,21 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
 
     public void Set_Refresh_Data(ListView lv) {
         person_data.clear();
-        db = new DatabaseHandler(this);
-        ArrayList<Person> contact_array_from_db = db.Get_People();
+        //db = new DatabaseHandler(this);
+        RealmQuery<Person> query = realm.where(Person.class);
 
-        for (int i = 0; i < contact_array_from_db.size(); i++) {
+        RealmResults<Person> allPeople = query.findAll();
+        //ArrayList<Person> allPeople = query.findAll();
 
-            int tidno = contact_array_from_db.get(i).getID();
-            String firstname = contact_array_from_db.get(i).getFirstName();
-            String lastname = contact_array_from_db.get(i).getLastName();
-            String country = contact_array_from_db.get(i).getCountry();
-            String gender = contact_array_from_db.get(i).getGender();
-            String dob = contact_array_from_db.get(i).getDateOfBirth();
-            String photo = contact_array_from_db.get(i).getPhoto();
+        for (int i = 0; i < allPeople.size(); i++) {
+
+            int tidno = allPeople.get(i).getID();
+            String firstname = allPeople.get(i).getFirstName();
+            String lastname = allPeople.get(i).getLastName();
+            String country = allPeople.get(i).getCountry();
+            String gender = allPeople.get(i).getGender();
+            String dob = allPeople.get(i).getDateOfBirth();
+            String photo = allPeople.get(i).getPhoto();
 
             Person p = new Person();
             p.setID(tidno);
@@ -487,7 +551,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
 
             person_data.add(p);
         }
-        db.close();
+        //db.close();
 
         adapter = new Person_Adapter(MainActivity.this, R.layout.listview_template,
                 person_data);
@@ -565,15 +629,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                     fragmentTransaction.commit();
                     change = "edit";
                     selectedEdit = Integer.parseInt(ID);
-
-                    /*Intent edit_user = new Intent(MainActivity.this,
-                            MainActivity.class);
-                    edit_user.putExtra("Update", "edit");
-                    edit_user.putExtra("ID", data.get(pos).getID());
-                    edit_user.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-                            | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(edit_user);
-                    finish();*/
                 }
             });
             //set long click for delete
@@ -591,10 +646,20 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                                 public void onClick(DialogInterface dialog,
                                                     int which) {
                                     // MyDataObject.remove(positionToRemove);
-                                    DatabaseHandler dBHandler = new DatabaseHandler(
+                                    /*DatabaseHandler dBHandler = new DatabaseHandler(
                                             activity.getApplicationContext());
                                     dBHandler.Delete_Person(data.get(person_id).getID());
-                                    person_data.remove(person_id);
+                                    person_data.remove(person_id);*/
+
+                                    RealmQuery<Person> query2 = realm.where(Person.class);
+                                    query2.equalTo("_id",data.get(person_id).getID());
+                                    RealmResults<Person> result1 = query2.findAll();
+                                    realm.beginTransaction();
+                                    result1.deleteAllFromRealm();
+                                    realm.commitTransaction();
+
+
+                                    Set_Refresh_Data(listV);
                                     MainActivity.this.onResume();
                                     adapter.notifyDataSetChanged();
                                 }
