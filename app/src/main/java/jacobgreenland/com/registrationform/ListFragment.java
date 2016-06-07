@@ -49,6 +49,7 @@ public class ListFragment extends Fragment {
 
         lv = (ListView) getView().findViewById(R.id.lv_List);
         comm.show(lv);
+
         //STEP 2: Reference to Main Activity
         /*com=(Communicator) getActivity();
         btnClick=(Button) getActivity().findViewById(R.id.btn1);

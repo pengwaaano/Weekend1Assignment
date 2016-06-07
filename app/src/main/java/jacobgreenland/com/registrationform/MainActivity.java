@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
@@ -18,6 +19,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -54,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     private Bitmap bitmap;
     Spinner mCountrySpinner;
     private BottomSheetBehavior mBottomSheetBehavior;
+    Button dateButton;
     Button mOkButton, mViewAllButton;
     Button mConfirmButton;
     RadioButton mMale, mFemale, mOther;
@@ -66,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     private ActionBar actionBar;
 
     String change = "add";
+    int selectedEdit = 0;
 
     ArrayList<Person> person_data = new ArrayList<Person>();
     DatabaseHandler db;
@@ -78,9 +83,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        // call initialise UI elements
 
-        //
+        actionBar = getActionBar();
+        // Hide the action bar title
+        //actionBar.setDisplayShowTitleEnabled(false);
 
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -103,6 +109,23 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         //Set_Refresh_Data();
         //RefreshData();
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        //inflater.inflate(R.menu.main, menu);
+        Fragment currentFrag = getFragmentManager().findFragmentById(R.id.main_fragment);
+        if(currentFrag instanceof DetailsFragment)
+        {
+            inflater.inflate(R.menu.adduser, menu);
+        }
+        else
+        {
+            inflater.inflate(R.menu.main, menu);
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
+
     @SuppressLint("NewApi")
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
@@ -121,27 +144,43 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     public void show(ListView lv) {
         Set_Refresh_Data(lv);
     }
-
+    @SuppressLint("NewApi")
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @Override
+    public void returnViews(TextView fn, TextView ln, Spinner country, TextView dob, ImageView photo, RadioButton m, RadioButton f, RadioButton o, Button b, Button ok, Button va, Button c)
+    {
+        mFirstName = fn;
+        mLastName = ln;
+        mCountrySpinner = country;
+        mDateOfBirth = dob;
+        mProfilePhoto = photo;
+        mMale = m;
+        mFemale = f;
+        mOther = o;
+        dateButton = b;
+        mOkButton = ok;
+        mViewAllButton = va;
+        mConfirmButton = c;
+    }
     public void initialiseUI()
     {
         //Initialise UI elements
-        mFirstName = (TextView) findViewById(R.id.et_firstName);
-        mLastName = (TextView) findViewById(R.id.et_lastName);
-        mProfilePhoto = (ImageView) findViewById(R.id.et_profilePicture);
+        //mFirstName = (TextView) findViewById(R.id.et_firstName);
+        //mLastName = (TextView) findViewById(R.id.et_lastName);
+        //mProfilePhoto = (ImageView) findViewById(R.id.et_profilePicture);
 
-        mDateOfBirth = (TextView) findViewById(R.id.et_DateOfBirth);
-        Button button = (Button) findViewById(R.id.et_datePicker);
+        //mDateOfBirth = (TextView) findViewById(R.id.et_DateOfBirth);
 
-        mMale = (RadioButton) findViewById(R.id.et_maleRadio);
-        mFemale = (RadioButton) findViewById(R.id.et_femaleRadio);
-        mOther = (RadioButton) findViewById(R.id.et_otherRadio);
+        //mMale = (RadioButton) findViewById(R.id.et_maleRadio);
+        //mFemale = (RadioButton) findViewById(R.id.et_femaleRadio);
+        //mOther = (RadioButton) findViewById(R.id.et_otherRadio);
         group = (RadioGroup) findViewById(R.id.et_radioGroup);
 
-        mOkButton = (Button) findViewById(R.id.et_okButton);
-        mViewAllButton = (Button) findViewById(R.id.et_viewAll);
+        //mOkButton = (Button) findViewById(R.id.et_okButton);
+        //mViewAllButton = (Button) findViewById(R.id.et_viewAll);
         mDateOfBirth.setText(R.string.dob);
         //set date picker onclick
-        button.setOnClickListener(new View.OnClickListener() {
+        dateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 DatePickerBuilder dpb = new DatePickerBuilder()
@@ -151,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
             }
         });
 
-        mCountrySpinner = (Spinner) findViewById(R.id.et_countrySpinner);
+        //mCountrySpinner = (Spinner) findViewById(R.id.et_countrySpinner);
         //set spinner onclick
         mCountrySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
@@ -168,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         });
         View bottomSheet = findViewById( R.id.bottom_sheet );
         mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-        mConfirmButton = (Button) findViewById(R.id.et_confirmButton);
+        //mConfirmButton = (Button) findViewById(R.id.et_confirmButton);
 
         //refresh data if it's being edited rather than added
         RefreshData();
@@ -178,11 +217,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     {
         String called_from = getIntent().getStringExtra("Update");
         //check if edit
-        if(called_from != null) {
-            if (called_from.equalsIgnoreCase("edit")) {
-                int editID = getIntent().getIntExtra("ID", 0);
+        //if(called_from != null) {
+            if (change.equalsIgnoreCase("edit")) {
+                //int editID = getIntent().getIntExtra("ID", 0);
 
-                Person editPerson = dbHandler.Get_Person(editID);
+                Person editPerson = dbHandler.Get_Person(selectedEdit);
                 // load data for the details being edited
                 mFirstName.setText(editPerson.getFirstName());
                 mLastName.setText(editPerson.getLastName());
@@ -216,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                 //mCountrySpinner.getAdapter().getI
                 //mCountrySpinner.set
             }
-        }
+        //}
             //set confirm button onClick
             mConfirmButton.setOnClickListener(new View.OnClickListener() {
 
@@ -450,12 +489,21 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                 public void onItemClick(AdapterView<?> adapter2, View item, int pos, long id) {
                     // TODO Auto-generated method stub
 
+                    String number = Integer.toString(selectedEdit);
+                    Log.d("test", number);
+
+                    //invalidateOptionsMenu();
+
                     FragmentManager fragmentManager = getFragmentManager();
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     DetailsFragment details = new DetailsFragment();
                     fragmentTransaction.replace(R.id.main_fragment, details, "details");
                     fragmentTransaction.commit();
+                    change = "edit";
+                    selectedEdit = pos + 1;
 
+
+                    RefreshData();
                     /*Intent edit_user = new Intent(MainActivity.this,
                             MainActivity.class);
                     edit_user.putExtra("Update", "edit");
@@ -487,8 +535,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                                     person_data.remove(person_id);
                                     MainActivity.this.onResume();
                                     adapter.notifyDataSetChanged();
-
-
                                 }
                             });
                     adb.show();
@@ -531,7 +577,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
             TextView dob;
             TextView gender;
             ImageView photo;
-
         }
 
     }

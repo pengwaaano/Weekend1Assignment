@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:registrationform="http://schemas.android.com/apk/res-auto">
+    <!-- Search Widget -->
+    <item android:id="@+id/action_search"
+        android:icon="@drawable/ic_search_holo_light"
+        android:title="@string/action_search"
+        registrationform:showAsAction="always"
+        android:actionViewClass="android.widget.SearchView"/>
 
-
+    <!-- Help -->
+    <item android:id="@+id/action_help"
+        android:icon="@drawable/ic_recurrence_bubble_outline"
+        android:title="@string/action_help"
+        registrationform:showAsAction="never"/>
 </menu>
