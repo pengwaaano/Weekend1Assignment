@@ -47,6 +47,15 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:id="@+id/lv_dob" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="6dp"
+                android:layout_height="25dp"
+                android:text="New Button"
+                android:id="@+id/invisibutton"
+                android:layout_gravity="right"
+                android:visibility="invisible" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

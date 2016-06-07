@@ -29,11 +29,13 @@ public class ListFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
+
                 FragmentManager fragmentManager = getFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 DetailsFragment details = new DetailsFragment();
                 fragmentTransaction.replace(R.id.main_fragment, details, "details");
                 fragmentTransaction.commit();
+                //comm.resetText();
                 //comm.update();
             }
         });

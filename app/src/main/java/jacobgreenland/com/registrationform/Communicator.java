@@ -15,4 +15,7 @@ public interface Communicator {
     public void update();
     public void show(ListView lv);
     public void returnViews(TextView fn, TextView ln, Spinner country, TextView dob, ImageView photo, RadioButton m, RadioButton f, RadioButton o, Button b, Button ok, Button va, Button c);
+    public void confirm();
+    public void cancel();
+    public void resetText();
 }

@@ -87,16 +87,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         actionBar = getActionBar();
         // Hide the action bar title
         //actionBar.setDisplayShowTitleEnabled(false);
-
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         ListFragment list = new ListFragment();
 
-        //listV= (ListView) list.getView().findViewById(R.id.lv_List);
-
         fragmentTransaction.add(R.id.main_fragment, list, "details");
-
-        //listV = ListFragment.lv;
 
         fragmentTransaction.commit();
 
@@ -147,6 +142,45 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     @SuppressLint("NewApi")
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
+    public void confirm() {
+        //save data
+        valid_firstName = mFirstName.getText().toString();
+        valid_lastName = mLastName.getText().toString();
+        valid_country = mCountrySpinner.getSelectedItem().toString();
+        valid_dob = mDateOfBirth.getText().toString();
+        //valid_photo = (String) mProfilePhoto.getTag();
+        if (mMale.isChecked())
+            valid_gender = "Male";
+        else if (mFemale.isChecked())
+            valid_gender = "Female";
+        else if (mOther.isChecked())
+            valid_gender = "Other";
+
+        //valid_email = add_email.getText().toString();
+        if (change.equalsIgnoreCase("edit")) {
+            dbHandler.Update_Person(new Person(selectedEdit, valid_firstName,
+                    valid_lastName, valid_country, valid_gender, valid_dob, valid_photo));
+            dbHandler.close();
+            Toast_msg = "Data updated successfully";
+            Show_Toast(Toast_msg);
+        } else {
+            Log.d("TEST", "Person Added");
+            dbHandler.Add_Person(new Person(valid_firstName,
+                    valid_lastName, valid_country, valid_gender, valid_dob, valid_photo));
+            Toast_msg = "Data inserted successfully";
+            Show_Toast(Toast_msg);
+        }
+        change = "add";
+        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        mOkButton.setVisibility(View.VISIBLE);
+        mViewAllButton.setVisibility(View.VISIBLE);
+
+            Reset_Text();
+
+    }
+    @SuppressLint("NewApi")
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @Override
     public void returnViews(TextView fn, TextView ln, Spinner country, TextView dob, ImageView photo, RadioButton m, RadioButton f, RadioButton o, Button b, Button ok, Button va, Button c)
     {
         mFirstName = fn;
@@ -164,18 +198,26 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
 
         RefreshData();
     }
+
+    @SuppressLint("NewApi")
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @Override
+    public void cancel() {
+        change = "add";
+        Reset_Text();
+        ListFragment list = new ListFragment();
+        changeFragment(list);
+    }
+    @SuppressLint("NewApi")
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @Override
+    public void resetText() {
+        //change = "add";
+        Reset_Text();
+    }
+
     public void initialiseUI()
     {
-        //Initialise UI elements
-        //mFirstName = (TextView) findViewById(R.id.et_firstName);
-        //mLastName = (TextView) findViewById(R.id.et_lastName);
-        //mProfilePhoto = (ImageView) findViewById(R.id.et_profilePicture);
-
-        //mDateOfBirth = (TextView) findViewById(R.id.et_DateOfBirth);
-
-        //mMale = (RadioButton) findViewById(R.id.et_maleRadio);
-        //mFemale = (RadioButton) findViewById(R.id.et_femaleRadio);
-        //mOther = (RadioButton) findViewById(R.id.et_otherRadio);
         group = (RadioGroup) findViewById(R.id.et_radioGroup);
 
         //mOkButton = (Button) findViewById(R.id.et_okButton);
@@ -212,15 +254,14 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         //mConfirmButton = (Button) findViewById(R.id.et_confirmButton);
 
         //refresh data if it's being edited rather than added
+
         RefreshData();
     }
 
     public void RefreshData()
     {
-        String called_from = getIntent().getStringExtra("Update");
-        //check if edit
-        //if(called_from != null) {
-            if (change.equalsIgnoreCase("edit")) {
+            if (change.equalsIgnoreCase("edit"))
+            {
                 //int editID = getIntent().getIntExtra("ID", 0);
 
                 Person editPerson = dbHandler.Get_Person(selectedEdit);
@@ -257,6 +298,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                 //mCountrySpinner.getAdapter().getI
                 //mCountrySpinner.set
             }
+            else
+            {
+                Reset_Text();
+            }
         //}
             //set confirm button onClick
             mConfirmButton.setOnClickListener(new View.OnClickListener() {
@@ -280,7 +325,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
 
                     //valid_email = add_email.getText().toString();
                         if (change.equalsIgnoreCase("edit")) {
-                            dbHandler.Update_Person(new Person(getIntent().getIntExtra("ID", 0), valid_firstName,
+                            dbHandler.Update_Person(new Person(selectedEdit, valid_firstName,
                                     valid_lastName, valid_country, valid_gender, valid_dob, valid_photo));
                             dbHandler.close();
                             Toast_msg = "Data updated successfully";
@@ -296,7 +341,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                     mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                     mOkButton.setVisibility(View.VISIBLE);
                     mViewAllButton.setVisibility(View.VISIBLE);
-
                     Reset_Text();
                 }
             });
@@ -407,13 +451,17 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
 
     public void ViewAll(View v)
     {
+        ListFragment list = new ListFragment();
+        changeFragment(list);
+        //Set_Refresh_Data();
+    }
+
+    public void changeFragment(Fragment f)
+    {
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        ListFragment list = new ListFragment();
-        fragmentTransaction.replace(R.id.main_fragment, list, "details");
+        fragmentTransaction.replace(R.id.main_fragment, f, "details");
         fragmentTransaction.commit();
-
-        //Set_Refresh_Data();
     }
 
     public void Show_Toast(String msg) {
@@ -423,6 +471,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     public void Reset_Text() {
         mFirstName.setText("");
         mLastName.setText("");
+        mDateOfBirth.setText("Date Of Birth");
+        mProfilePhoto.setImageResource(android.R.drawable.ic_dialog_info);
+        mMale.setChecked(false);
+        mFemale.setChecked(false);
+        mOther.setChecked(false);
     }
 
     public void Set_Refresh_Data(ListView lv) {
@@ -483,6 +536,33 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
             View row = convertView;
             UserHolder holder = null;
 
+            if (row == null) {
+                LayoutInflater inflater = LayoutInflater.from(activity);
+
+                row = inflater.inflate(layoutResourceId, parent, false);
+                holder = new UserHolder();
+
+                holder.name = (TextView) row.findViewById(R.id.lv_name);
+                holder.country = (TextView) row.findViewById(R.id.lv_country);
+                holder.dob = (TextView) row.findViewById(R.id.lv_dob);
+                holder.gender = (TextView) row.findViewById(R.id.lv_gender);
+                holder.photo = (ImageView) row.findViewById(R.id.lv_photo);
+                holder.IDtag = (Button) row.findViewById(R.id.invisibutton);
+
+                row.setTag(holder);
+            } else {
+                holder = (UserHolder) row.getTag();
+            }
+            user = data.get(position);
+            holder.name.setText(user.getFirstName() + " " + user.getLastName());
+            holder.country.setText(user.getCountry());
+            holder.dob.setText(user.getDateOfBirth());
+            holder.gender.setText(user.getGender());
+            holder.IDtag.setTag(user.getID());
+            byte[] decodedString = Base64.decode(user.getPhoto(), Base64.DEFAULT);
+            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            holder.photo.setImageBitmap(decodedByte);
+
             ListView list = listV;
             //set onClick for edit
             list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -490,9 +570,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                 @Override
                 public void onItemClick(AdapterView<?> adapter2, View item, int pos, long id) {
                     // TODO Auto-generated method stub
-
-                    String number = Integer.toString(selectedEdit);
-                    Log.d("test", number);
+                    String ID = item.findViewById(R.id.invisibutton).getTag().toString();
+                    Log.d("test", ID);
 
                     //invalidateOptionsMenu();
 
@@ -502,7 +581,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                     fragmentTransaction.replace(R.id.main_fragment, details, "details");
                     fragmentTransaction.commit();
                     change = "edit";
-                    selectedEdit = pos + 1;
+                    selectedEdit = Integer.parseInt(ID);
 
                     /*Intent edit_user = new Intent(MainActivity.this,
                             MainActivity.class);
@@ -543,30 +622,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                 }
             });
 
-            if (row == null) {
-                LayoutInflater inflater = LayoutInflater.from(activity);
-
-                row = inflater.inflate(layoutResourceId, parent, false);
-                holder = new UserHolder();
-                holder.name = (TextView) row.findViewById(R.id.lv_name);
-                holder.country = (TextView) row.findViewById(R.id.lv_country);
-                holder.dob = (TextView) row.findViewById(R.id.lv_dob);
-                holder.gender = (TextView) row.findViewById(R.id.lv_gender);
-                holder.photo = (ImageView) row.findViewById(R.id.lv_photo);
-
-                row.setTag(holder);
-            } else {
-                holder = (UserHolder) row.getTag();
-            }
-            user = data.get(position);
-            holder.name.setText(user.getFirstName() + " " + user.getLastName());
-            holder.country.setText(user.getCountry());
-            holder.dob.setText(user.getDateOfBirth());
-            holder.gender.setText(user.getGender());
-            byte[] decodedString = Base64.decode(user.getPhoto(), Base64.DEFAULT);
-            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-            holder.photo.setImageBitmap(decodedByte);
-
             return row;
 
         }
@@ -577,6 +632,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
             TextView dob;
             TextView gender;
             ImageView photo;
+            Button IDtag;
         }
 
     }

@@ -3,6 +3,9 @@ package jacobgreenland.com.registrationform;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -29,6 +32,7 @@ public class DetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // TODO Auto-generated method stub
         View v = inflater.inflate(R.layout.activity_main, container,false);
+        setHasOptionsMenu(true);
         return v;
     }
 
@@ -58,6 +62,7 @@ public class DetailsFragment extends Fragment {
 
         comm.returnViews(mFirstName,mLastName,mCountrySpinner,mDateOfBirth,mProfilePhoto,mMale,mFemale,mOther,dateButton, okButton, viewAllButton, confirmButton);
         comm.initialise();
+        //comm.resetText();
         //group = (RadioGroup) getView().findViewById(R.id.et_radioGroup);
 
         //STEP 2: Reference to Main Activity
@@ -74,5 +79,29 @@ public class DetailsFragment extends Fragment {
                 com.respond("The button was clicked"+counter+"times");
             }
         });*/
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    /**
+     * On selecting action bar icons
+     * */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Take appropriate action for each action item click
+        switch (item.getItemId()) {
+            case R.id.action_confirm:
+                // search action
+                comm.confirm();
+                return true;
+            case R.id.action_cancel:
+                comm.cancel();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }
