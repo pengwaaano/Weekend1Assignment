@@ -363,7 +363,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                 if(mFirstName.getText() == null || mLastName.getText() == null || mCountrySpinner.getSelectedItem() == null || mDateOfBirth.getText() == "Date Of Birth"
                         || valid_gender == "")
                 {
-
                     Log.d("TEST", mFirstName.getText().toString());
                     Log.d("TEST", mLastName.getText().toString());
                     Log.d("TEST", mCountrySpinner.getSelectedItem().toString());

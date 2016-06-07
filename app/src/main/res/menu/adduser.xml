@@ -4,13 +4,13 @@
 
 <!-- Confirm -->
     <item android:id="@+id/action_confirm"
-        android:icon="@drawable/ic_check_light_disabled"
+        android:icon="@drawable/ic_check"
         android:title="@string/action_confirm"
         registrationform:showAsAction="always" />
 
     <!-- Cancel -->
     <item android:id="@+id/action_cancel"
-        android:icon="@android:drawable/ic_delete"
+        android:icon="@drawable/ic_close"
         android:title="@string/action_cancel"
         registrationform:showAsAction="always" />
 </menu>
