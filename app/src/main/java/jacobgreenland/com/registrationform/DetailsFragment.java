@@ -62,23 +62,6 @@ public class DetailsFragment extends Fragment {
 
         comm.returnViews(mFirstName,mLastName,mCountrySpinner,mDateOfBirth,mProfilePhoto,mMale,mFemale,mOther,dateButton, okButton, viewAllButton, confirmButton);
         comm.initialise();
-        //comm.resetText();
-        //group = (RadioGroup) getView().findViewById(R.id.et_radioGroup);
-
-        //STEP 2: Reference to Main Activity
-        /*com=(Communicator) getActivity();
-        btnClick=(Button) getActivity().findViewById(R.id.btn1);
-
-
-        btnClick.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View arg0) {
-                counter++;
-                //STEP 3:Call Interface Methods
-                com.respond("The button was clicked"+counter+"times");
-            }
-        });*/
     }
 
     @Override

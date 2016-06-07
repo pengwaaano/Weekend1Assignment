@@ -131,7 +131,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(Constants.KEY_DATEOFBIRTH, person.getDateOfBirth());
         values.put(Constants.KEY_GENDER, person.getGender());
         values.put(Constants.KEY_PHOTO, person.getPhoto());
-
         // updating row
         return db.update(Constants.TABLE_PEOPLE, values, Constants.KEY_ID + " = ?",
                 new String[] { String.valueOf(person.getID()) });

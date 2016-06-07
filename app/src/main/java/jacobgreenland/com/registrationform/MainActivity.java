@@ -29,7 +29,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -61,7 +60,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     Button mOkButton, mViewAllButton;
     Button mConfirmButton;
     RadioButton mMale, mFemale, mOther;
-    RadioGroup group;
     DatabaseHandler dbHandler = new DatabaseHandler(this);
 
     private String valid_firstName = null, valid_lastName = null, valid_country = null, valid_gender = null, valid_dob = null, valid_photo = null;
@@ -90,9 +88,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         ListFragment list = new ListFragment();
-
         fragmentTransaction.add(R.id.main_fragment, list, "details");
-
         fragmentTransaction.commit();
 
         //Set_Refresh_Data();
@@ -218,10 +214,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
 
     public void initialiseUI()
     {
-        group = (RadioGroup) findViewById(R.id.et_radioGroup);
-
-        //mOkButton = (Button) findViewById(R.id.et_okButton);
-        //mViewAllButton = (Button) findViewById(R.id.et_viewAll);
         mDateOfBirth.setText(R.string.dob);
         //set date picker onclick
         dateButton.setOnClickListener(new View.OnClickListener() {
@@ -234,8 +226,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
             }
         });
 
-        //mCountrySpinner = (Spinner) findViewById(R.id.et_countrySpinner);
-        //set spinner onclick
         mCountrySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
             public void onItemSelected(AdapterView<?> av, View v,
@@ -251,7 +241,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         });
         View bottomSheet = findViewById( R.id.bottom_sheet );
         mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-        //mConfirmButton = (Button) findViewById(R.id.et_confirmButton);
 
         //refresh data if it's being edited rather than added
 
@@ -363,11 +352,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                 if(mFirstName.getText() == null || mLastName.getText() == null || mCountrySpinner.getSelectedItem() == null || mDateOfBirth.getText() == "Date Of Birth"
                         || valid_gender == "")
                 {
-                    Log.d("TEST", mFirstName.getText().toString());
-                    Log.d("TEST", mLastName.getText().toString());
-                    Log.d("TEST", mCountrySpinner.getSelectedItem().toString());
-                    Log.d("TEST", mDateOfBirth.getText().toString());
-                    Log.d("TEST", valid_gender.toString());
                     //Log.d("TEST", mProfilePhoto.getTag().toString());
                     mConfirmButton.setEnabled(false);
                 }
