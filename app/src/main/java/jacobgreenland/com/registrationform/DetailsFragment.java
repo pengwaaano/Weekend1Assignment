@@ -27,6 +27,7 @@ public class DetailsFragment extends Fragment {
     Spinner mCountrySpinner;
     RadioButton mMale, mFemale, mOther;
     Button dateButton, okButton, viewAllButton, confirmButton;
+    Button confirmAction;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -59,6 +60,7 @@ public class DetailsFragment extends Fragment {
         okButton = (Button) getView().findViewById(R.id.et_okButton);
         viewAllButton = (Button) getView().findViewById(R.id.et_viewAll);
         confirmButton = (Button) getView().findViewById(R.id.et_confirmButton);
+        confirmAction = (Button) getView().findViewById(R.id.action_confirm);
 
         comm.returnViews(mFirstName,mLastName,mCountrySpinner,mDateOfBirth,mProfilePhoto,mMale,mFemale,mOther,dateButton, okButton, viewAllButton, confirmButton);
         comm.initialise();
@@ -78,7 +80,8 @@ public class DetailsFragment extends Fragment {
         switch (item.getItemId()) {
             case R.id.action_confirm:
                 // search action
-                comm.confirm();
+                if(comm.checkEnabled())
+                    comm.confirm();
                 return true;
             case R.id.action_cancel:
                 comm.cancel();

@@ -63,7 +63,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     Button mOkButton, mViewAllButton;
     Button mConfirmButton;
     RadioButton mMale, mFemale, mOther;
-    //DatabaseHandler dbHandler = new DatabaseHandler(this);
 
     private String valid_firstName = null, valid_lastName = null, valid_country = null, valid_gender = null, valid_dob = null, valid_photo = null;
     String Toast_msg = null;
@@ -74,7 +73,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     int selectedEdit = 0;
 
     ArrayList<Person> person_data = new ArrayList<Person>();
-    //DatabaseHandler db;
     ArrayAdapter adapter;
 
     ListView listV;
@@ -82,8 +80,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     RealmConfiguration realmConfig;
     Realm realm;
 
-    public static int maxID = 0;
-    //Date mDateOfBirth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,6 +93,12 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
 
 // Get a Realm instance for this thread
         realm = Realm.getDefaultInstance();
+
+        //realm.beginTransaction();
+        //Realm.getDefaultInstance().deleteAll();
+        //realm.commitTransaction();
+
+        // Associate searchable configuration with the SearchView
 
         // Hide the action bar title
         //actionBar.setDisplayShowTitleEnabled(false);
@@ -245,7 +247,22 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         //change = "add";
         Reset_Text();
     }
-
+    @SuppressLint("NewApi")
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @Override
+    public boolean checkEnabled() {
+        boolean check = false;
+        if(mFirstName.getText() == null || mLastName.getText() == null || mCountrySpinner.getSelectedItem() == null || mDateOfBirth.getText() == "Date Of Birth"
+                || valid_gender == null || valid_photo == null)
+        {
+            check = false;
+        }
+        else
+        {
+            check = true;
+        }
+        return check;
+    }
     public void initialiseUI()
     {
         mDateOfBirth.setText(R.string.dob);
@@ -285,8 +302,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     {
             if (change.equalsIgnoreCase("edit"))
             {
-                //int editID = getIntent().getIntExtra("ID", 0);
-
                 RealmQuery query = realm.where(Person.class);
                     query.equalTo("_id", selectedEdit);
                 RealmResults<Person> result1 = query.findAll();
@@ -297,39 +312,25 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                 mLastName.setText(editPerson.getLastName());
                 mDateOfBirth.setText(editPerson.getDateOfBirth());
                 valid_photo = editPerson.getPhoto();
-                //if(editPerson.getPhoto().contains("content:"))
                 if (editPerson.getPhoto() != "") {
                     byte[] decodedString = Base64.decode(editPerson.getPhoto(), Base64.DEFAULT);
                     Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                     mProfilePhoto.setImageBitmap(decodedByte);
                 }
-                //mProfilePhoto.setImageURI(Uri.parse(editPerson.getPhoto()));
 
-                Log.d("Gender Test", editPerson.getGender().toString());
-                //mMale.setChecked(true);
                 if (editPerson.getGender().equalsIgnoreCase("male")) {
                     mMale.setChecked(true);
-                    //mFemale.setChecked(false);
-                    //mOther.setChecked(false);
                 } else if (editPerson.getGender().equalsIgnoreCase("female")) {
-                    //mMale.setChecked(false);
                     mFemale.setChecked(true);
-                    //mOther.setChecked(false);
                 } else if (editPerson.getGender().equalsIgnoreCase("other")) {
-                    //mMale.setChecked(false);
-                    //mFemale.setChecked(false);
                     mOther.setChecked(true);
                 }
-
                 mCountrySpinner.setSelection(((ArrayAdapter<String>) mCountrySpinner.getAdapter()).getPosition(editPerson.getCountry()));
-                //mCountrySpinner.getAdapter().getI
-                //mCountrySpinner.set
             }
             else
             {
                 Reset_Text();
             }
-        //}
             //set confirm button onClick
             mConfirmButton.setOnClickListener(new View.OnClickListener() {
 
@@ -349,43 +350,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                         valid_gender = "Female";
                     else if (mOther.isChecked())
                         valid_gender = "Other";
+                    else
+                        valid_gender = null;
 
-                    //valid_email = add_email.getText().toString();
                     confirm();
-                        /*if (change.equalsIgnoreCase("edit")) {
 
-                            Person person = new Person();
-
-                            person.setID(selectedEdit+1);
-
-                            person.setFirstName(valid_firstName);
-                            person.setLastName(valid_lastName);
-                            person.setDateOfBirth(valid_dob);
-                            person.setCountry(valid_country);
-                            person.setGender(valid_gender);
-                            person.setPhoto(valid_photo);
-
-                            realm.beginTransaction();
-                            realm.copyToRealmOrUpdate(person);
-                            realm.commitTransaction();
-
-                            Toast_msg = "Data updated successfully";
-                            Show_Toast(Toast_msg);
-                        } else {
-                            realm.beginTransaction();
-                            Person person = realm.createObject(Person.class);
-                            //maxID++;
-                            person.setID(realm.where(Person.class).max("_id").intValue()+1);
-
-                            person.setFirstName(valid_firstName);
-                            person.setLastName(valid_lastName);
-                            person.setDateOfBirth(valid_dob);
-                            person.setCountry(valid_country);
-                            person.setGender(valid_gender);
-                            person.setPhoto(valid_photo);
-                            realm.commitTransaction();
-
-                        }*/
                     change = "add";
                     mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                     mOkButton.setVisibility(View.VISIBLE);
@@ -409,14 +378,13 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                 else
                     valid_gender = "";
                 //check all data has been entered
-                if(mFirstName.getText() == null || mLastName.getText() == null || mCountrySpinner.getSelectedItem() == null || mDateOfBirth.getText() == "Date Of Birth"
-                        || valid_gender == "")
+                if(checkEnabled())
                 {
-                    //Log.d("TEST", mProfilePhoto.getTag().toString());
+                    mConfirmButton.setEnabled(true);
+                }
+                else {
                     mConfirmButton.setEnabled(false);
                 }
-                else
-                    mConfirmButton.setEnabled(true);
 
                 mOkButton.setVisibility(View.INVISIBLE);
                 mViewAllButton.setVisibility(View.INVISIBLE);
@@ -441,7 +409,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     public void onDialogDateSet(int reference, int year, int monthOfYear, int dayOfMonth) {
         mDateOfBirth.setText(dayOfMonth + "/" + (monthOfYear+1) + "/" + year);
         valid_dob = dayOfMonth + "/" + (monthOfYear+1) + "/" + year;
-        //getString(R.string.date_picker_result_value, year, monthOfYear+1, dayOfMonth));
     }
     public void onImageClick(View v)
     {
@@ -461,18 +428,16 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                 if (bitmap != null) {
                     bitmap.recycle();
                 }
-                Log.d("Activity", data.getData().toString());
                 stream = getContentResolver().openInputStream(data.getData());
-                //Log.d("Test", stream.toString() + " 1");
                 bitmap = BitmapFactory.decodeStream(stream);
 
                 mProfilePhoto.setImageBitmap(bitmap);
 
-// get the base 64 string
+                // get the base 64 string
                 String imgString = Base64.encodeToString(getBytesFromBitmap(bitmap),
                         Base64.NO_WRAP);
 
-                valid_photo = imgString;//getImageUri(getApplicationContext(),bitmap);
+                valid_photo = imgString;
 
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -556,8 +521,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         adapter = new Person_Adapter(MainActivity.this, R.layout.listview_template,
                 person_data);
 
-        //listV = (ListView)findViewById(R.id.lv_List);
-
         lv.setAdapter(adapter);
         listV = lv;
         adapter.notifyDataSetChanged();
@@ -606,9 +569,15 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
             holder.dob.setText(user.getDateOfBirth());
             holder.gender.setText(user.getGender());
             holder.IDtag.setTag(user.getID());
-            byte[] decodedString = Base64.decode(user.getPhoto(), Base64.DEFAULT);
-            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-            holder.photo.setImageBitmap(decodedByte);
+            if(!user.getPhoto().equals("")) {
+                byte[] decodedString = Base64.decode(user.getPhoto(), Base64.DEFAULT);
+                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                holder.photo.setImageBitmap(decodedByte);
+            }
+            else
+            {
+                holder.photo.setImageResource(R.drawable.ic_face);
+            }
 
             ListView list = listV;
             //set onClick for edit
@@ -618,10 +587,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                 public void onItemClick(AdapterView<?> adapter2, View item, int pos, long id) {
                     // TODO Auto-generated method stub
                     String ID = item.findViewById(R.id.invisibutton).getTag().toString();
-                    Log.d("test", ID);
-
-                    //invalidateOptionsMenu();
-
                     FragmentManager fragmentManager = getFragmentManager();
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     DetailsFragment details = new DetailsFragment();
@@ -645,11 +610,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                                 @Override
                                 public void onClick(DialogInterface dialog,
                                                     int which) {
-                                    // MyDataObject.remove(positionToRemove);
-                                    /*DatabaseHandler dBHandler = new DatabaseHandler(
-                                            activity.getApplicationContext());
-                                    dBHandler.Delete_Person(data.get(person_id).getID());
-                                    person_data.remove(person_id);*/
 
                                     RealmQuery<Person> query2 = realm.where(Person.class);
                                     query2.equalTo("_id",data.get(person_id).getID());
@@ -665,7 +625,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
                                 }
                             });
                     adb.show();
-                    //writeItems();
                     return true;
                 }
             });

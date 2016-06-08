@@ -18,4 +18,5 @@ public interface Communicator {
     public void confirm();
     public void cancel();
     public void resetText();
+    public boolean checkEnabled();
 }
