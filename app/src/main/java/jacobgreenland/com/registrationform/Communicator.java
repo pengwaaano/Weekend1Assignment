@@ -1,8 +1,8 @@
 package jacobgreenland.com.registrationform;
 
+import android.support.v7.widget.RecyclerView;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -13,7 +13,7 @@ import android.widget.TextView;
 public interface Communicator {
     public void initialise();
     public void update();
-    public void show(ListView lv);
+    public void show(RecyclerView lv);
     public void returnViews(TextView fn, TextView ln, Spinner country, TextView dob, ImageView photo, RadioButton m, RadioButton f, RadioButton o, Button b, Button ok, Button va, Button c);
     public void confirm();
     public void cancel();

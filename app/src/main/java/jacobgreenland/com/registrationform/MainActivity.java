@@ -4,11 +4,9 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,18 +14,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -73,9 +71,12 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     int selectedEdit = 0;
 
     ArrayList<Person> person_data = new ArrayList<Person>();
-    ArrayAdapter adapter;
 
-    ListView listV;
+
+    private RecyclerView mRecyclerView;
+    private PersonAdapter mAdapter;
+
+    //ListView listV;
 
     RealmConfiguration realmConfig;
     Realm realm;
@@ -91,8 +92,14 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         realmConfig = new RealmConfiguration.Builder(getApplicationContext()).build();
         Realm.setDefaultConfiguration(realmConfig);
 
-// Get a Realm instance for this thread
+        // Get a Realm instance for this thread
         realm = Realm.getDefaultInstance();
+
+        RealmQuery<Person> query = realm.where(Person.class);
+
+        RealmResults<Person> allPeople = query.findAll();
+
+        Log.d("test", allPeople.get(0).getFirstName());
 
         //realm.beginTransaction();
         //Realm.getDefaultInstance().deleteAll();
@@ -110,6 +117,17 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
 
         //Set_Refresh_Data();
     }
+
+    public void initialiseRecyclerView()
+    {
+        //mRecyclerView = (RecyclerView) findViewById(R.id.lv_List);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        //mAdapter = new PersonAdapter(person_data, R.layout.listview_template, getApplicationContext());
+        //mRecyclerView.setAdapter(mAdapter);
+    }
+
     @Override
     public void onResume() {
         // TODO Auto-generated method stub
@@ -149,8 +167,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     @SuppressLint("NewApi")
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
-    public void show(ListView lv) {
-        Set_Refresh_Data(lv);
+    public void show(RecyclerView lv) {
+        mRecyclerView = lv;
+        initialiseRecyclerView();
+        Set_Refresh_Data();
     }
     @SuppressLint("NewApi")
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -487,7 +507,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         mOther.setChecked(false);
     }
 
-    public void Set_Refresh_Data(ListView lv) {
+    public void Set_Refresh_Data() {
         person_data.clear();
         //db = new DatabaseHandler(this);
         RealmQuery<Person> query = realm.where(Person.class);
@@ -518,15 +538,31 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         }
         //db.close();
 
-        adapter = new Person_Adapter(MainActivity.this, R.layout.listview_template,
+        /*adapter = new Person_Adapter(MainActivity.this, R.layout.listview_template,
                 person_data);
 
         lv.setAdapter(adapter);
-        listV = lv;
-        adapter.notifyDataSetChanged();
+        listV = lv;*/
+
+        Log.d("test2", person_data.get(0).getFirstName());
+        mAdapter = new PersonAdapter(person_data, R.layout.listview_template, getApplicationContext());
+        mRecyclerView.setAdapter(mAdapter);
+        mAdapter.notifyDataSetChanged();
     }
 
-    public class Person_Adapter extends ArrayAdapter<Person> {
+    public void onRCClick(View view, int position, boolean isLongClick)
+    {
+        String ID = view.findViewById(R.id.invisibutton).getTag().toString();
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DetailsFragment details = new DetailsFragment();
+        fragmentTransaction.replace(R.id.main_fragment, details, "details");
+        fragmentTransaction.commit();
+        change = "edit";
+        selectedEdit = Integer.parseInt(ID);
+    }
+
+    /*public class Person_Adapter extends ArrayAdapter<Person> {
         Activity activity;
         int layoutResourceId;
         Person user;
@@ -578,22 +614,14 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
             {
                 holder.photo.setImageResource(R.drawable.ic_face);
             }
-
-            ListView list = listV;
+            /*
             //set onClick for edit
             list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
                 @Override
                 public void onItemClick(AdapterView<?> adapter2, View item, int pos, long id) {
                     // TODO Auto-generated method stub
-                    String ID = item.findViewById(R.id.invisibutton).getTag().toString();
-                    FragmentManager fragmentManager = getFragmentManager();
-                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                    DetailsFragment details = new DetailsFragment();
-                    fragmentTransaction.replace(R.id.main_fragment, details, "details");
-                    fragmentTransaction.commit();
-                    change = "edit";
-                    selectedEdit = Integer.parseInt(ID);
+
                 }
             });
             //set long click for delete
@@ -642,6 +670,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
             Button IDtag;
         }
 
-    }
+    }*/
 
 }

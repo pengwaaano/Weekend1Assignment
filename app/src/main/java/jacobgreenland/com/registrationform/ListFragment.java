@@ -4,12 +4,12 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ListView;
 
 /**
  * Created by Jacob on 06/06/16.
@@ -17,7 +17,7 @@ import android.widget.ListView;
 public class ListFragment extends Fragment {
     Communicator comm;
     Button addUser;
-    public static ListView lv;
+    public static RecyclerView lv;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -50,7 +50,7 @@ public class ListFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         comm = (Communicator) getActivity();
 
-        lv = (ListView) getView().findViewById(R.id.lv_List);
+        lv = (RecyclerView) getView().findViewById(R.id.lv_List);
         comm.show(lv);
 
         //STEP 2: Reference to Main Activity
