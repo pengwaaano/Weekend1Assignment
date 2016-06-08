@@ -1,11 +1,58 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
     </style>
+    <declare-styleable name="SearchView">
+        <!-- The layout to use for the search view. -->
+        <attr name="layout" format="reference" />
+        <!--
+             The default state of the SearchView. If true, it will be iconified when not in
+             use and expanded when clicked.
+        -->
+        <attr name="iconifiedByDefault" format="boolean" />
+
+        <!-- An optional maximum width of the SearchView. -->
+        <attr name="android:maxWidth" />
+
+        <!-- An optional query hint string to be displayed in the empty query field. -->
+        <attr name="queryHint" format="string" />
+
+        <!-- The IME options to set on the query text field. -->
+        <attr name="android:imeOptions" />
+
+        <!-- The input type to set on the query text field. -->
+        <attr name="android:inputType" />
+
+        <!-- Close button icon -->
+        <attr name="closeIcon" format="reference" />
+        <!-- Go button icon -->
+
+        <attr name="goIcon" format="reference" />
+        <!-- Search icon -->
+
+        <attr name="searchIcon" format="reference" />
+
+        <!-- Voice button icon -->
+        <attr name="voiceIcon" format="reference" />
+
+        <!-- Commit icon shown in the query suggestion row -->
+        <attr name="commitIcon" format="reference" />
+
+        <!-- Layout for query suggestion rows -->
+        <attr name="suggestionRowLayout" format="reference" />
+
+        <!-- Background for the section containing the search query -->
+        <attr name="queryBackground" format="reference" />
+
+        <!-- Background for the section containing the action (e.g. voice search) -->
+        <attr name="submitBackground" format="reference" />
+
+        <attr name="android:focusable" />
+    </declare-styleable>
 
 </resources>

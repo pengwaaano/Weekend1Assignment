@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import jacobgreenland.com.registrationform.Model.Person;
-
 /**
  * Created by Jacob on 08/06/16.
  */
@@ -26,6 +24,8 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
     private int rowLayout;
     private Context mContext;
     private ItemClickListener icl;
+    DetailsFragment mFragment;
+
     public PersonAdapter(ArrayList<Person> personList, int rowLayout, Context context) {
         this.people = personList;
         this.rowLayout = rowLayout;
@@ -55,6 +55,36 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
         {
             holder.profilePicture.setImageResource(R.drawable.ic_face);
         }
+
+        holder.setClickListener(new ItemClickListener() {
+            @Override
+            public void onClick(View view, int position, boolean isLongClick) {
+                if (isLongClick) {
+                    fragmentJump(view, people.get(position).getID(), true);
+                    Toast.makeText(mContext, "#" + position + " - " + person.getFirstName() + " (Long click)", Toast.LENGTH_SHORT).show();
+                } else {
+                    fragmentJump(view, people.get(position).getID(), false);
+                    Toast.makeText(mContext, "#" + position + " - " +person.getFirstName(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+    }
+
+    private void fragmentJump(View view, int pos, boolean delete) {
+        mFragment = new DetailsFragment();
+        switchContent(R.id.main_fragment, mFragment, view, pos, delete);
+    }
+
+    public void switchContent(int id, DetailsFragment fragment, View view, int pos, boolean delete) {
+        if (mContext == null)
+            return;
+        if (mContext instanceof MainActivity) {
+            MainActivity mainActivity = (MainActivity) mContext;
+            DetailsFragment frag = fragment;
+            mainActivity.switchContent(id, frag, view, pos, delete);
+        }
+
     }
 
     @Override
@@ -62,7 +92,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
         return people.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder{
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener{
 
         public TextView name;
         public TextView country;
@@ -75,7 +105,6 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
 
         public ViewHolder(View itemView) {
             super(itemView);
-
             name = (TextView) itemView.findViewById(R.id.lv_name);
             country = (TextView) itemView.findViewById(R.id.lv_country);
             dob = (TextView) itemView.findViewById(R.id.lv_dob);
@@ -83,33 +112,25 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
             profilePicture = (ImageView) itemView.findViewById(R.id.lv_photo);
 
             itemView.setTag(itemView);
-
-                itemView.setOnClickListener(new View.OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
+            itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
 
 
-                    Toast.makeText(v.getContext(), "OnClick Version :" + getPosition(),
-                            Toast.LENGTH_SHORT).show();
-                    Log.i("RecyclerView", "Clicked");
 
-                }
-                });
+        }
+        public void setClickListener(ItemClickListener itemClickListener) {
+            this.clickListener = itemClickListener;
+        }
 
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+        @Override
+        public void onClick(View view) {
+            clickListener.onClick(view, getPosition(), false);
+        }
 
-                @Override
-                public boolean onLongClick(View v) {
-
-                    Toast.makeText(v.getContext(), "OnLongClick Version :" + versionName,
-                            Toast.LENGTH_SHORT).show();
-                    Log.i("RecyclerView", "OnLongClick");
-                    return true;
-
-                }
-            });
-
+        @Override
+        public boolean onLongClick(View view) {
+            clickListener.onClick(view, getPosition(), true);
+            return true;
         }
         /*public void setClickListener(ItemClickListener itemClickListener) {
             this.clickListener = itemClickListener;

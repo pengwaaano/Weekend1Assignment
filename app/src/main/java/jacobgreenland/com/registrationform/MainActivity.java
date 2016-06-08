@@ -2,14 +2,17 @@ package jacobgreenland.com.registrationform;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
@@ -17,6 +20,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
@@ -33,6 +37,7 @@ import android.widget.Toast;
 
 import com.codetroopers.betterpickers.datepicker.DatePickerBuilder;
 import com.codetroopers.betterpickers.datepicker.DatePickerDialogFragment;
+import com.melnykov.fab.FloatingActionButton;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -65,28 +70,27 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     private String valid_firstName = null, valid_lastName = null, valid_country = null, valid_gender = null, valid_dob = null, valid_photo = null;
     String Toast_msg = null;
 
-    private ActionBar actionBar;
-
     String change = "add";
     int selectedEdit = 0;
 
     ArrayList<Person> person_data = new ArrayList<Person>();
 
-
     private RecyclerView mRecyclerView;
     private PersonAdapter mAdapter;
 
-    //ListView listV;
-
     RealmConfiguration realmConfig;
     Realm realm;
+
+    FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        actionBar = getActionBar();
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitleTextColor(Color.WHITE);
+        setSupportActionBar(toolbar);
 
         // Create a RealmConfiguration that saves the Realm file in the app's "files" directory.
         realmConfig = new RealmConfiguration.Builder(getApplicationContext()).build();
@@ -99,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
 
         RealmResults<Person> allPeople = query.findAll();
 
-        Log.d("test", allPeople.get(0).getFirstName());
+
 
         //realm.beginTransaction();
         //Realm.getDefaultInstance().deleteAll();
@@ -545,21 +549,82 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         listV = lv;*/
 
         Log.d("test2", person_data.get(0).getFirstName());
-        mAdapter = new PersonAdapter(person_data, R.layout.listview_template, getApplicationContext());
+        mAdapter = new PersonAdapter(person_data, R.layout.listview_template, MainActivity.this);
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
-    }
 
-    public void onRCClick(View view, int position, boolean isLongClick)
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.attachToRecyclerView(mRecyclerView);
+        fab.setVisibility(View.VISIBLE);
+        fab.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+
+                FragmentManager fragmentManager = getFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                DetailsFragment details = new DetailsFragment();
+                fragmentTransaction.replace(R.id.main_fragment, details, "details");
+                fragmentTransaction.commit();
+                fab.setVisibility(View.INVISIBLE);
+            }
+        });
+
+    }
+    public void onRClick(View view)
     {
-        String ID = view.findViewById(R.id.invisibutton).getTag().toString();
+
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         DetailsFragment details = new DetailsFragment();
         fragmentTransaction.replace(R.id.main_fragment, details, "details");
         fragmentTransaction.commit();
-        change = "edit";
-        selectedEdit = Integer.parseInt(ID);
+
+    }
+    public void onLongRClick(View view, Context m, int pos, final ArrayList<Person> data)
+    {
+
+    }
+
+    public void switchContent(int id, Fragment fragment, View view, final int pos, boolean delete) {
+        if(!delete) {
+            FragmentManager fragmentManager = getFragmentManager();
+            FragmentTransaction ft = fragmentManager.beginTransaction();
+            ft.replace(id, fragment, fragment.toString());
+            //String ID = view.findViewById(R.id.invisibutton).getTag().toString();
+            change = "edit";
+            selectedEdit = pos;
+            ft.commit();
+        }
+        else
+        {
+            AlertDialog.Builder adb = new AlertDialog.Builder(MainActivity.this);
+            adb.setTitle("Delete?");
+            adb.setMessage("Are you sure you want to delete ");
+            final int person_id = pos;
+            adb.setNegativeButton("Cancel", null);
+            adb.setPositiveButton("Ok",
+                    new AlertDialog.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog,
+                                            int which) {
+
+                            RealmQuery<Person> query2 = realm.where(Person.class);
+                            query2.equalTo("_id",pos);
+                            RealmResults<Person> result1 = query2.findAll();
+                            realm.beginTransaction();
+                            result1.deleteAllFromRealm();
+                            realm.commitTransaction();
+
+
+                            Set_Refresh_Data();
+                            MainActivity.this.onResume();
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    });
+            adb.show();
+        }
     }
 
     /*public class Person_Adapter extends ArrayAdapter<Person> {
