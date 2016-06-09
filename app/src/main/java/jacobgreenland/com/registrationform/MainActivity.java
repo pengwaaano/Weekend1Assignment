@@ -1,5 +1,6 @@
 package jacobgreenland.com.registrationform;
 
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -22,10 +23,12 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -35,6 +38,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bartoszlipinski.recyclerviewheader2.RecyclerViewHeader;
 import com.codetroopers.betterpickers.datepicker.DatePickerBuilder;
 import com.codetroopers.betterpickers.datepicker.DatePickerDialogFragment;
 import com.melnykov.fab.FloatingActionButton;
@@ -76,34 +80,39 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     ArrayList<Person> person_data = new ArrayList<Person>();
 
     private RecyclerView mRecyclerView;
+    RecyclerViewHeader header;
     private PersonAdapter mAdapter;
 
     RealmConfiguration realmConfig;
     Realm realm;
 
+    Toolbar toolbar;
     FloatingActionButton fab;
+    View mContainerHeader;
+    ObjectAnimator fade;
+
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(toolbar);
+
+        // Inflate the header view and attach it to the ListView
 
         // Create a RealmConfiguration that saves the Realm file in the app's "files" directory.
         realmConfig = new RealmConfiguration.Builder(getApplicationContext()).build();
         Realm.setDefaultConfiguration(realmConfig);
-
         // Get a Realm instance for this thread
         realm = Realm.getDefaultInstance();
 
         RealmQuery<Person> query = realm.where(Person.class);
 
         RealmResults<Person> allPeople = query.findAll();
-
-
 
         //realm.beginTransaction();
         //Realm.getDefaultInstance().deleteAll();
@@ -127,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         //mRecyclerView = (RecyclerView) findViewById(R.id.lv_List);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-
+        header.attachTo(mRecyclerView);
         //mAdapter = new PersonAdapter(person_data, R.layout.listview_template, getApplicationContext());
         //mRecyclerView.setAdapter(mAdapter);
     }
@@ -171,10 +180,12 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     @SuppressLint("NewApi")
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
-    public void show(RecyclerView lv) {
+    public void show(RecyclerView lv, RecyclerViewHeader rcH) {
         mRecyclerView = lv;
+        header = rcH;
         initialiseRecyclerView();
         Set_Refresh_Data();
+
     }
     @SuppressLint("NewApi")
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -553,6 +564,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
 
+
+
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.attachToRecyclerView(mRecyclerView);
         fab.setVisibility(View.VISIBLE);
@@ -571,6 +584,20 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
             }
         });
 
+        /*View headerView = LayoutInflater.from(this)
+                .inflate(R.layout.listview_header, mRecyclerView, false);
+        mContainerHeader = headerView.findViewById(R.id.container);*/
+
+
+        //mRecyclerView.addHeaderView
+
+        // prepare the fade in/out animator
+        fade =  ObjectAnimator.ofFloat(mContainerHeader, "alpha", 0f, 1f);
+        fade.setInterpolator(new DecelerateInterpolator());
+        fade.setDuration(400);
+
+        //mRecyclerView.addOnScrollListener(this);
+        setRecyclerScroll();
     }
     public void onRClick(View view)
     {
@@ -626,115 +653,164 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
             adb.show();
         }
     }
+    public void setRecyclerScroll()
+    {
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
+        {
+            int pastVisiblesItems, visibleItemCount, totalItemCount, firstVisibleItem;
+            @Override
+            public void onScrollStateChanged(RecyclerView view, int scrollState) {}
 
-    /*public class Person_Adapter extends ArrayAdapter<Person> {
-        Activity activity;
-        int layoutResourceId;
-        Person user;
-        ArrayList<Person> data = new ArrayList<Person>();
-
-        public Person_Adapter(Activity act, int layoutResourceId,
-                               ArrayList<Person> data) {
-            super(act, layoutResourceId, data);
-            this.layoutResourceId = layoutResourceId;
-            this.activity = act;
-            this.data = data;
-            notifyDataSetChanged();
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View row = convertView;
-            UserHolder holder = null;
-
-            if (row == null) {
-                LayoutInflater inflater = LayoutInflater.from(activity);
-
-                row = inflater.inflate(layoutResourceId, parent, false);
-                holder = new UserHolder();
-
-                holder.name = (TextView) row.findViewById(R.id.lv_name);
-                holder.country = (TextView) row.findViewById(R.id.lv_country);
-                holder.dob = (TextView) row.findViewById(R.id.lv_dob);
-                holder.gender = (TextView) row.findViewById(R.id.lv_gender);
-                holder.photo = (ImageView) row.findViewById(R.id.lv_photo);
-                holder.IDtag = (Button) row.findViewById(R.id.invisibutton);
-
-                row.setTag(holder);
-            } else {
-                holder = (UserHolder) row.getTag();
-            }
-            user = data.get(position);
-            holder.name.setText(user.getFirstName() + " " + user.getLastName());
-            holder.country.setText(user.getCountry());
-            holder.dob.setText(user.getDateOfBirth());
-            holder.gender.setText(user.getGender());
-            holder.IDtag.setTag(user.getID());
-            if(!user.getPhoto().equals("")) {
-                byte[] decodedString = Base64.decode(user.getPhoto(), Base64.DEFAULT);
-                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                holder.photo.setImageBitmap(decodedByte);
-            }
-            else
+            @Override
+            public void onScrolled(RecyclerView view, int dx, int dy)
             {
-                holder.photo.setImageResource(R.drawable.ic_face);
+                if(dy > 0) //check for scroll down
+                {
+                    LinearLayoutManager mLayoutManager = (LinearLayoutManager) view.getLayoutManager();
+                    visibleItemCount = mLayoutManager.getChildCount();
+                    totalItemCount = mLayoutManager.getItemCount();
+                    //firstVisibleItem = mLayoutManager.getChildAt(0);
+                    pastVisiblesItems = mLayoutManager.findFirstVisibleItemPosition();
+
+                    if (view != null && view.getChildCount() > 0 && pastVisiblesItems == 0) {
+
+                        // we calculate the FAB's Y position
+                        int translation = view.getChildAt(0).getHeight() + view.getChildAt(0).getTop();
+                        fab.setTranslationY(translation>0  ? translation : 0);
+
+                        // if we scrolled more than 16dps, we hide the content and display the title
+                        if (view.getChildAt(0).getTop() < -dpToPx(16)) {
+                            toggleHeader(false, false);
+                        } else {
+                            toggleHeader(true, true);
+                        }
+                    } else {
+                        toggleHeader(false, false);
+                    }
+
+                    // if the device uses Lollipop or above, we update the ToolBar's elevation
+                    // according to the scroll position.
+                    if (isLollipop()) {
+                        if (firstVisibleItem == 0) {
+                            toolbar.setElevation(0);
+                        } else {
+                            toolbar.setElevation(dpToPx(4));
+                        }
+                    }
+                }
             }
-            /*
-            //set onClick for edit
-            list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        });
+    }
 
-                @Override
-                public void onItemClick(AdapterView<?> adapter2, View item, int pos, long id) {
-                    // TODO Auto-generated method stub
+        private void toggleHeader(boolean visible, boolean force) {
+        if ((force && visible) || (visible && header.getAlpha() == 0f)) {
+            fade.setFloatValues(header.getAlpha(), 1f);
+            fade.start();
+        } else if (force || (!visible && header.getAlpha() == 1f)){
+            fade.setFloatValues(header.getAlpha(), 0f);
+            fade.start();
+        }
+        // Toggle the visibility of the title.
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(!visible);
+        }
+    }
 
-                }
-            });
-            //set long click for delete
-            list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                @Override
-                public boolean onItemLongClick(AdapterView<?> adapter2, View item, int pos, long id) {
-                    AlertDialog.Builder adb = new AlertDialog.Builder(activity);
-                    adb.setTitle("Delete?");
-                    adb.setMessage("Are you sure you want to delete ");
-                    final int person_id = pos;
-                    adb.setNegativeButton("Cancel", null);
-                    adb.setPositiveButton("Ok",
-                            new AlertDialog.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog,
-                                                    int which) {
+        /**
+         * Convert Dps into Pxs
+         * @param dp a number of dp to convert
+         * @return the value in pixels
+         */
+    public int dpToPx(int dp) {
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        return (int)(dp * (displayMetrics.densityDpi / 160f));
+    }
 
-                                    RealmQuery<Person> query2 = realm.where(Person.class);
-                                    query2.equalTo("_id",data.get(person_id).getID());
-                                    RealmResults<Person> result1 = query2.findAll();
-                                    realm.beginTransaction();
-                                    result1.deleteAllFromRealm();
-                                    realm.commitTransaction();
+    /**
+     * Check if the device rocks, and runs Lollipop
+     * @return true if Lollipop or above
+     */
+    public static boolean isLollipop() {
+        return android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+    }
+    }
+    /*
+    @Override
+    public void onScrollStateChanged(RecyclerView view, int scrollState) {}
 
+    /**
+     * Listen to the scroll events of the listView
+     * @param view the listView
+     * @param firstVisibleItem the first visible item
+     * @param visibleItemCount the number of visible items
+     */
+    /*@TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    public void onScrolled(RecyclerView view,
+                         int firstVisibleItem,
+                         int visibleItemCount) {
+        // we make sure the list is not null and empty, and the header is visible
+        if (view != null && view.getChildCount() > 0 && firstVisibleItem == 0) {
 
-                                    Set_Refresh_Data(listV);
-                                    MainActivity.this.onResume();
-                                    adapter.notifyDataSetChanged();
-                                }
-                            });
-                    adb.show();
-                    return true;
-                }
-            });
+            // we calculate the FAB's Y position
+            int translation = view.getChildAt(0).getHeight() + view.getChildAt(0).getTop();
+            fab.setTranslationY(translation>0  ? translation : 0);
 
-            return row;
-
+            // if we scrolled more than 16dps, we hide the content and display the title
+            if (view.getChildAt(0).getTop() < -dpToPx(16)) {
+                toggleHeader(false, false);
+            } else {
+                toggleHeader(true, true);
+            }
+        } else {
+            toggleHeader(false, false);
         }
 
-        class UserHolder {
-            TextView name;
-            TextView country;
-            TextView dob;
-            TextView gender;
-            ImageView photo;
-            Button IDtag;
+        // if the device uses Lollipop or above, we update the ToolBar's elevation
+        // according to the scroll position.
+        if (isLollipop()) {
+            if (firstVisibleItem == 0) {
+                toolbar.setElevation(0);
+            } else {
+                toolbar.setElevation(dpToPx(4));
+            }
         }
+    }
 
+    /**
+     * Start the animation to fade in or out the header's content
+     * @param visible true if the header's content should appear
+     * @param force true if we don't wait for the animation to be completed
+     *              but force the change.
+     *//*
+    private void toggleHeader(boolean visible, boolean force) {
+        if ((force && visible) || (visible && mContainerHeader.getAlpha() == 0f)) {
+            fade.setFloatValues(mContainerHeader.getAlpha(), 1f);
+            fade.start();
+        } else if (force || (!visible && mContainerHeader.getAlpha() == 1f)){
+            fade.setFloatValues(mContainerHeader.getAlpha(), 0f);
+            fade.start();
+        }
+        // Toggle the visibility of the title.
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(!visible);
+        }
+    }
+
+    /**
+     * Convert Dps into Pxs
+     * @param dp a number of dp to convert
+     * @return the value in pixels
+     *//*
+    public int dpToPx(int dp) {
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        return (int)(dp * (displayMetrics.densityDpi / 160f));
+    }
+
+    /**
+     * Check if the device rocks, and runs Lollipop
+     * @return true if Lollipop or above
+     *//*
+    public static boolean isLollipop() {
+        return android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
     }*/
-
-}

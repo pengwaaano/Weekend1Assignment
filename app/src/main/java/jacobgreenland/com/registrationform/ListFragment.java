@@ -8,12 +8,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bartoszlipinski.recyclerviewheader2.RecyclerViewHeader;
+
 /**
  * Created by Jacob on 06/06/16.
  */
 public class ListFragment extends Fragment {
     Communicator comm;
     public static RecyclerView lv;
+    public RecyclerViewHeader rcH;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -30,7 +33,8 @@ public class ListFragment extends Fragment {
         comm = (Communicator) getActivity();
 
         lv = (RecyclerView) getView().findViewById(R.id.lv_List);
-        comm.show(lv);
+        rcH = (RecyclerViewHeader) getView().findViewById(R.id.header);
+        comm.show(lv, rcH);
 
         //STEP 2: Reference to Main Activity
         /*com=(Communicator) getActivity();

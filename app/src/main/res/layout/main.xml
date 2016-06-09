@@ -10,12 +10,13 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="128dp"
+        android:layout_height="wrap_content"
         android:background="@color/primary"
         android:titleTextColor="@color/icons"
         app:contentInsetEnd="0dp"
         android:minHeight="?android:attr/actionBarSize"
         android:gravity="bottom"
+        android:titleTextAppearance="@style/AppTheme"
         />
 
     <FrameLayout

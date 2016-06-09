@@ -7,13 +7,15 @@ import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.bartoszlipinski.recyclerviewheader2.RecyclerViewHeader;
+
 /**
  * Created by Jacob on 06/06/16.
  */
 public interface Communicator {
     public void initialise();
     public void update();
-    public void show(RecyclerView lv);
+    public void show(RecyclerView lv, RecyclerViewHeader rcH);
     public void returnViews(TextView fn, TextView ln, Spinner country, TextView dob, ImageView photo, RadioButton m, RadioButton f, RadioButton o, Button b, Button ok, Button va, Button c);
     public void confirm();
     public void cancel();
